@@ -1,0 +1,20 @@
+[project]
+name = "adv_suite"
+authors = [
+    { name = "TnologiaRD", email = "tnologiard@gmail.com"}
+]
+description = "Esta aplicación, Adv Suite, fue desarrollada para centralizar todas las personalizaciones de ERPNext específicas de Adv, adaptándose a sus necesidades comerciales y requisitos únicos. La app incluye modificaciones en el flujo de trabajo, ajustes en los formularios, campos adicionales, y procesos automatizados para optimizar el uso de ERPNext en sus operaciones diarias. La integración con esta app permite una fácil gestión, mantenimiento y actualización de las personalizaciones sin afectar el núcleo de ERPNext, garantizando flexibilidad y escalabilidad."
+requires-python = ">=3.10"
+readme = "README.md"
+dynamic = ["version"]
+dependencies = [
+    # "frappe~=15.0.0" # Installed and managed by bench.
+]
+
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+# These dependencies are only installed when developer mode is enabled
+[tool.bench.dev-dependencies]
+# package_name = "~=1.1.0"
