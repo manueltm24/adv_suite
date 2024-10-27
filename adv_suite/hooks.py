@@ -83,12 +83,12 @@ app_license = "mit"
 # ------------
 
 # before_install = "adv_suite.install.before_install"
-# after_install = "adv_suite.install.after_install"
+after_install = "adv_suite.install.after_install"
 
 # Uninstallation
 # ------------
 
-# before_uninstall = "adv_suite.uninstall.before_uninstall"
+before_uninstall = "adv_suite.uninstall.before_uninstall"
 # after_uninstall = "adv_suite.uninstall.after_uninstall"
 
 # Integration Setup
@@ -242,3 +242,7 @@ app_license = "mit"
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
+fixtures = [
+    {"dt":"Custom Field", "filters":[["module","=","Adv Suite"]]},
+    {"dt":"Property Setter", "filters":[["module","=","Adv Suite"]]},
+]
