@@ -69,3 +69,18 @@ def get_bom_cost(bom_name):
     """Obtener el costo total del BOM."""
     bom = frappe.get_doc("BOM", bom_name)
     return bom.total_cost
+
+@frappe.whitelist()
+def update_bom(bom_name, margin_type, margin_rate_or_amount, rate_with_margin):
+    try:
+        frappe.logger().info(f"Updating BOM: {bom_name}, Margin Type: {margin_type}, Margin Rate or Amount: {margin_rate_or_amount}")
+        bom = frappe.get_doc('BOM', bom_name)
+        bom.custom_margin_type = margin_type
+        bom.custom_margin_rate_or_amount = margin_rate_or_amount
+        bom.custom_rate_with_margin = rate_with_margin
+        bom.save()
+        frappe.db.commit()
+        frappe.logger().info(f"BOM {bom_name} updated successfully")
+    except Exception as e:
+        frappe.logger().error(f"Error updating BOM {bom_name}: {str(e)}")
+        frappe.throw(_("An error occurred while updating the BOM: {0}").format(str(e)))

@@ -95,7 +95,7 @@ def insert_doc_links_and_actions():
     ]
 
     insert_doc_links(doc_links)
-    insert_doc_actions(doc_actions)
+    # insert_doc_actions(doc_actions)
  
 def after_install():
     insert_doc_links_and_actions()
