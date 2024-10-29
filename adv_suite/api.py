@@ -84,3 +84,12 @@ def update_bom(bom_name, margin_type, margin_rate_or_amount, rate_with_margin):
     except Exception as e:
         frappe.logger().error(f"Error updating BOM {bom_name}: {str(e)}")
         frappe.throw(_("An error occurred while updating the BOM: {0}").format(str(e)))
+
+
+@frappe.whitelist()
+def search_items(query, limit=5):
+    print(f"Searching items with query: {query}")
+    print(query)
+    items = frappe.get_all('Item', filters={'item_name': ['like', f'%{query}%']}, fields=['item_name'], limit=limit)
+    print(f"Items found: {items}")
+    return items
