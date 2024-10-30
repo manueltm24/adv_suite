@@ -45,6 +45,7 @@ app_license = "mit"
 # include js in doctype views
 doctype_js = {"Quotation": "public/js/quotation_custom.js",
               "BOM": "public/js/bom_custom.js",
+            #   "Project": "public/js/project_custom.js",
               "Task": "public/js/task_custom.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -245,8 +246,8 @@ before_uninstall = "adv_suite.uninstall.before_uninstall"
 # }
 
 fixtures = [
-    "Task Type",
-    "Product Finish",
+    # "Task Type",
+    # "Product Finish",
     {"dt":"Custom Field", "filters":[["module","=","Adv Suite"]]},
     {"dt":"Property Setter", "filters":[["module","=","Adv Suite"]]},
 ]
