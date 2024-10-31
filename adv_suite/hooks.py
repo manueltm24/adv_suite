@@ -28,6 +28,10 @@ app_license = "mit"
 # app_include_css = "/assets/adv_suite/css/adv_suite.css"
 # app_include_js = "/assets/adv_suite/js/adv_suite.js"
 
+app_include_css = "/assets/adv_suite/swiper/swiper-bundle.min.css"
+app_include_js = "/assets/adv_suite/swiper/swiper-bundle.min.js"
+
+
 # include js, css files in header of web template
 # web_include_css = "/assets/adv_suite/css/adv_suite.css"
 # web_include_js = "/assets/adv_suite/js/adv_suite.js"
@@ -45,7 +49,7 @@ app_license = "mit"
 # include js in doctype views
 doctype_js = {"Quotation": "public/js/quotation_custom.js",
               "BOM": "public/js/bom_custom.js",
-            #   "Project": "public/js/project_custom.js",
+              "Project": "public/js/project_custom.js",
               "Task": "public/js/task_custom.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
