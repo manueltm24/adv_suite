@@ -1,4 +1,16 @@
 frappe.ui.form.on('Quotation', {
+    onload: function(frm) {
+        // // Verifica si el usuario tiene el rol de 'AUXILIAR ALMACEN'
+        // if (frappe.user.has_role("AUXILIAR ALMACEN")) {
+        //     // Verifica si el enlace ya existe para evitar duplicados
+        //     if (!frm.sidebar.find('.sidebar-link-to-quotations').length) {
+        //         // Agrega el enlace en el sidebar
+        //         frm.sidebar.add_user_action(__('View All Quotations'), function() {
+        //             frappe.set_route("List", "Quotation");
+        //         }).addClass("sidebar-link-to-quotations");
+        //     }
+        // }
+    },
     custom_project: function(frm) {
         if (frm.doc.custom_project) {
             // Recuperar el proyecto
@@ -76,6 +88,22 @@ frappe.ui.form.on('Quotation', {
 
     refresh: function(frm) {
         add_recalculate_button(frm);
+        // Verifica si el usuario tiene el rol "AUXILIAR ALMACEN"
+        console.log('User roles:', frappe.user_roles);
+        if (frappe.user.has_role("AUXILIAR ALMACEN") && !frappe.user.has_role("Administrator")) {
+            console.log('User has role AUXILIAR ALMACEN');
+            // Itera sobre la tabla de elementos de la cotización y establece los precios a cero
+            frm.doc.items.forEach(item => {
+                frappe.model.set_value(item.doctype, item.name, 'rate', 0);
+                frappe.model.set_value(item.doctype, item.name, 'amount', 0);
+            });
+            // Actualiza el total de la cotización después de cambiar los precios a cero
+            frm.refresh_field('items');
+            frm.refresh_fields(['total', 'grand_total', 'rounded_total']);
+            frm.toggle_display("other_charges_calculation", false);
+            frm.toggle_display("payment_schedule", false);
+        }
+        
     },
 });
 
@@ -127,7 +155,7 @@ frappe.ui.form.on('Quotation Item', {
             // if (item.custom_bom) {
             //     frm.fields_dict.items.grid.update_docfield_property('price_list_rate', 'label', __('Total Cost of BOM'));
             //     frm.fields_dict.items.grid.update_docfield_property('base_price_list_rate', 'label', __('Total Cost of BOM (Default Rate)'));
-            // }
+            // } 
         });
     },
 });

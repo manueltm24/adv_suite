@@ -118,7 +118,7 @@ function initializeSwiper(frm) {
 
             // Filtra solo las imágenes
             let imageFiles = files.filter(file => {
-                return /\.(jpg|jpeg|png|gif)$/i.test(file.file_name);
+                return /\.(jpg|jpeg|png|gif|jfif)$/i.test(file.file_name);
             });
 
             // Inserta cada imagen en el slider como un enlace
