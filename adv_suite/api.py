@@ -71,12 +71,13 @@ def get_bom_cost(bom_name):
     return bom.total_cost
 
 @frappe.whitelist()
-def update_bom(bom_name, margin_type, margin_rate_or_amount, rate_with_margin):
+def update_bom(bom_name, margin_type, margin_rate_or_amount, margin_amount, rate_with_margin):
     try:
         frappe.logger().info(f"Updating BOM: {bom_name}, Margin Type: {margin_type}, Margin Rate or Amount: {margin_rate_or_amount}")
         bom = frappe.get_doc('BOM', bom_name)
         bom.custom_margin_type = margin_type
         bom.custom_margin_rate_or_amount = margin_rate_or_amount
+        bom.custom_margin_amount = margin_amount
         bom.custom_rate_with_margin = rate_with_margin
         bom.save()
         frappe.db.commit()
