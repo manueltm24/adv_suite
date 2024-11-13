@@ -1,5 +1,6 @@
 frappe.ui.form.on('Quotation', {
     onload: function(frm) {
+        // recalculate_prices(frm);
     },
     custom_project: function(frm) {
         if (frm.doc.custom_project) {
@@ -15,9 +16,13 @@ frappe.ui.form.on('Quotation', {
         }
     },
     before_save: function(frm) {
+        console.log('before_save');
         frm.doc.items.forEach(item => {
-            if (item.custom_bom && (item.margin_type !== item.__unsaved_margin_type || item.margin_rate_or_amount !== item.__unsaved_margin_rate_or_amount)) {
+            console.log("            if (item.custom_bom && (item.margin_type !== item.__unsaved_margin_type || item.margin_rate_or_amount !== item.__unsaved_margin_rate_or_amount)) {");
+            console.log(item.margin_type, item.__unsaved_margin_type, item.margin_rate_or_amount, item.__unsaved_margin_rate_or_amount);
+            if (item.custom_bom && item.__unsaved_margin_type && item.__unsaved_margin_rate_or_amount && (item.margin_type !== item.__unsaved_margin_type || item.margin_rate_or_amount !== item.__unsaved_margin_rate_or_amount)) {
                 // Actualizar el BOM asociado
+                console.log(`Updating BOM ${item.custom_bom} ${item.margin_type} ${item.margin_rate_or_amount} ${item.margin_amount} ${item.rate_with_margin}`);
                 frappe.call({
                     method: 'adv_suite.api.update_bom',
                     args: {
@@ -92,7 +97,12 @@ frappe.ui.form.on('Quotation', {
             frm.toggle_display("other_charges_calculation", false);
             frm.toggle_display("payment_schedule", false);
         }
-        
+    },
+    before_submit: function(frm) {
+        if (!frm.doc.custom_accounting_verified_credit) {
+            frappe.msgprint(__('Es requerido confirmar que se ha realizado la verificación por Contabilidad del crédito y anticipo.'));
+            frappe.validated = false;
+        }
     },
 });
 
@@ -104,13 +114,22 @@ frappe.ui.form.on('Quotation Item', {
     items_remove: function(frm) {
         add_recalculate_button(frm);
     },
-    refresh: function(frm) {
-        frm.doc.items.forEach(item => {
-            item.__unsaved_margin_type = item.margin_type;
-            item.__unsaved_margin_rate_or_amount = item.margin_rate_or_amount;
-            item.__unsaved_custom_rate_with_margin = item.rate_with_margin;
-        });
-    },
+    // refresh: function(frm) {
+    //     frm.doc.items.forEach(item => {
+    //         console.log("Actualizar campos no guardados");
+    //         item.__unsaved_margin_type = item.margin_type;
+    //         item.__unsaved_margin_rate_or_amount = item.margin_rate_or_amount;
+    //         item.__unsaved_custom_rate_with_margin = item.rate_with_margin;
+    //     });
+    // },
+    margin_rate_or_amount: function(frm, cdt, cdn) {
+        console.log("Actualizar campos no guardados - margin_rate_or_amount");
+        let item = locals[cdt][cdn];
+        item.__unsaved_margin_type = item.margin_type;
+        item.__unsaved_margin_rate_or_amount = item.margin_rate_or_amount;
+        item.__unsaved_custom_rate_with_margin = item.rate_with_margin;
+
+    }
 });
 
 function recalculate_prices(frm) {

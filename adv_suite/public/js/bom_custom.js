@@ -27,7 +27,14 @@ frappe.ui.form.on('BOM', {
     },
     items_on_form_rendered(doc, doctype,docname) {
         // se ejecuta cuando se renderiza el formulario modal
-	}
+	},
+    before_submit: function(frm) {
+        if (!frm.doc.custom_warehouse_verified_materials) {
+            frappe.msgprint(__('Es requerido confirmar que se ha realizado la verificación por Almacén de la disponibilidad de materiales.'));
+            frappe.validated = false;
+        }
+    },
+
 });
 
 function calculate_margin_values(frm) {
