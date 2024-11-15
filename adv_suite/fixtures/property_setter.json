@@ -1,6 +1,38 @@
 [
  {
   "default_value": null,
+  "doc_type": "Task",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocType",
+  "field_name": null,
+  "is_system_generated": 0,
+  "modified": "2024-10-30 14:05:13.594624",
+  "module": "Adv Suite",
+  "name": "Task-main-field_order",
+  "property": "field_order",
+  "property_type": "Data",
+  "row_name": null,
+  "value": "[\"subject\", \"project\", \"issue\", \"type\", \"color\", \"is_group\", \"is_template\", \"column_break0\", \"status\", \"priority\", \"task_weight\", \"parent_task\", \"completed_by\", \"completed_on\", \"custom_sales_person\", \"sb_timeline\", \"exp_start_date\", \"expected_time\", \"start\", \"column_break_11\", \"exp_end_date\", \"progress\", \"duration\", \"is_milestone\", \"custom_section_break_bec0s\", \"custom_qty\", \"custom_product_finish\", \"custom_column_break_euz3m\", \"custom_ploter\", \"custom_materials\", \"custom_project_materials\", \"sb_details\", \"description\", \"sb_depends_on\", \"depends_on\", \"depends_on_tasks\", \"sb_actual\", \"act_start_date\", \"actual_time\", \"column_break_15\", \"act_end_date\", \"sb_costing\", \"total_costing_amount\", \"total_expense_claim\", \"column_break_20\", \"total_billing_amount\", \"sb_more_info\", \"review_date\", \"closing_date\", \"column_break_22\", \"department\", \"company\", \"lft\", \"rgt\", \"old_parent\", \"template_task\"]"
+ },
+ {
+  "default_value": null,
+  "doc_type": "BOM",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocType",
+  "field_name": null,
+  "is_system_generated": 0,
+  "modified": "2024-11-09 10:06:12.589208",
+  "module": "Adv Suite",
+  "name": "BOM-main-field_order",
+  "property": "field_order",
+  "property_type": "Data",
+  "row_name": null,
+  "value": "[\"production_item_tab\", \"item\", \"company\", \"uom\", \"quantity\", \"cb0\", \"is_active\", \"is_default\", \"allow_alternative_item\", \"set_rate_of_sub_assembly_item_based_on_bom\", \"project\", \"image\", \"currency_detail\", \"rm_cost_as_per\", \"buying_price_list\", \"price_list_currency\", \"plc_conversion_rate\", \"column_break_ivyw\", \"currency\", \"conversion_rate\", \"materials_section\", \"items\", \"section_break_21\", \"operations_section_section\", \"with_operations\", \"column_break_23\", \"transfer_material_against\", \"routing\", \"fg_based_operating_cost\", \"fg_based_section_section\", \"operating_cost_per_bom_quantity\", \"operations_section\", \"operations\", \"scrap_section\", \"scrap_items_section\", \"scrap_items\", \"process_loss_section\", \"process_loss_percentage\", \"column_break_ssj2\", \"process_loss_qty\", \"costing\", \"operating_cost\", \"raw_material_cost\", \"scrap_material_cost\", \"cb1\", \"base_operating_cost\", \"base_raw_material_cost\", \"base_scrap_material_cost\", \"column_break_26\", \"total_cost\", \"base_total_cost\", \"custom_margin_type\", \"custom_margin_rate_or_amount\", \"custom_margin_amount\", \"custom_rate_with_margin\", \"more_info_tab\", \"item_name\", \"description\", \"column_break_27\", \"has_variants\", \"quality_inspection_section_break\", \"inspection_required\", \"column_break_dxp7\", \"quality_inspection_template\", \"section_break0\", \"exploded_items\", \"website_section\", \"show_in_website\", \"route\", \"column_break_52\", \"website_image\", \"thumbnail\", \"sb_web_spec\", \"show_items\", \"show_operations\", \"web_long_description\", \"reference_section\", \"bom_creator\", \"bom_creator_item\", \"column_break_oxbz\", \"amended_from\", \"connections_tab\"]"
+ },
+ {
+  "default_value": null,
   "doc_type": "Quotation Item",
   "docstatus": 0,
   "doctype": "Property Setter",

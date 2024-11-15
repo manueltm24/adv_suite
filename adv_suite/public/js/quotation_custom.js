@@ -1,6 +1,17 @@
 frappe.ui.form.on('Quotation', {
     onload: function(frm) {
-        // recalculate_prices(frm);
+        // No quitar: Se requiere para que se muestre el filtro desde el primer elemento que se agrega
+        // Establecer el filtro de BOM en la tabla de elementos de la cotización
+        frm.fields_dict['items'].grid.get_field('custom_bom').get_query = function(doc, cdt, cdn) {
+            let row = locals[cdt][cdn];
+            if (row && row.item_code) {
+                return {
+                    filters: [
+                        ["BOM", "item", "=", row.item_code]
+                    ]
+                };
+            }
+        };
     },
     custom_project: function(frm) {
         if (frm.doc.custom_project) {
@@ -114,14 +125,9 @@ frappe.ui.form.on('Quotation Item', {
     items_remove: function(frm) {
         add_recalculate_button(frm);
     },
-    // refresh: function(frm) {
-    //     frm.doc.items.forEach(item => {
-    //         console.log("Actualizar campos no guardados");
-    //         item.__unsaved_margin_type = item.margin_type;
-    //         item.__unsaved_margin_rate_or_amount = item.margin_rate_or_amount;
-    //         item.__unsaved_custom_rate_with_margin = item.rate_with_margin;
-    //     });
-    // },
+    item_code: function(frm, cdt, cdn) {
+        apply_bom_filter(frm, cdt, cdn);
+    },
     margin_rate_or_amount: function(frm, cdt, cdn) {
         console.log("Actualizar campos no guardados - margin_rate_or_amount");
         let item = locals[cdt][cdn];
@@ -131,6 +137,22 @@ frappe.ui.form.on('Quotation Item', {
 
     }
 });
+
+function apply_bom_filter(frm, cdt, cdn) {
+    let row = locals[cdt][cdn];
+    if (row.item_code) {
+        frm.fields_dict['items'].grid.get_field('custom_bom').get_query = function(doc, cdt, cdn) {
+            let current_row = locals[cdt][cdn];
+            return {
+                filters: [
+                    ["BOM", "item", "=", current_row.item_code]
+                ]
+            };
+        };
+        // Refrescar el campo 'custom_bom' en la fila actual
+        frm.refresh_field('items');
+    }
+}
 
 function recalculate_prices(frm) {
     if (frm.doc.items && frm.doc.items.length > 0) {
