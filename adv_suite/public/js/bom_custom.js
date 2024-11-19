@@ -11,6 +11,20 @@ frappe.ui.form.on('BOM', {
             }
             apply_role_based_customizations(frm, "items");
         }
+        // Recuperar los valores de los separadores desde Advertech Settings y guardarlos en el formulario
+        frappe.call({
+            method: 'frappe.client.get_value',
+            args: {
+                doctype: 'Advertech Settings',
+                fieldname: ['bom_items_separator']
+            },
+            callback: function(r) {
+                if (r.message) {
+                    frm.bom_items_separator = r.message.bom_items_separator || '|';
+                }
+            }
+        });
+        add_copy_icon_to_table(frm);
     },
     custom_margin_type: function(frm) {
         reset_margin_fields(frm);
@@ -263,4 +277,79 @@ function apply_table_role_based_customizations(frm, table) {
     
     // Ocultar fotter del grid
     // frm.fields_dict['items'].grid.wrapper.find('.grid-footer').hide();
+}
+
+// Función para agregar el ícono de copiar a la tabla custom_project_materials
+function add_copy_icon_to_table(frm) {
+    let table_field = frm.fields_dict['items'];
+    if (!table_field) {
+        console.error('No se encontró el campo custom_project_materials');
+        return;
+    }
+
+    // Buscar el contenedor .form-column del campo
+    let form_column = table_field.$wrapper.closest('.form-column');
+
+    // Si no encontramos el .form-column, detener
+    if (!form_column.length) {
+        console.error('No se encontró el contenedor .form-column');
+        return;
+    }
+
+    // Buscar el label dentro del contenedor
+    let label_container = table_field.$wrapper.find('.control-label');
+    if (!label_container.length) {
+        console.error('No se encontró el contenedor del label (.control-label)');
+        return;
+    }
+
+    // Verificar si el ícono ya fue agregado
+    if (label_container.find('.copy-content-icon').length) {
+        return; // Evitar duplicados
+    }
+
+    // Insertar el ícono después del label
+    label_container.css('position', 'relative');
+    label_container.css('width', '100%');
+    label_container.append(`
+        <span class="copy-content-icon control-label" 
+              style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 16px;" title="${__('Copy')}">
+            <svg class="icon icon-sm">
+                <use xlink:href="/assets/frappe/icons/timeless/icons.svg#icon-duplicate"></use>
+            </svg>
+        </span>
+    `);
+
+    // Manejar el clic en el ícono
+    label_container.find('.copy-content-icon').on('click', function () {
+        // Obtener los valores del campo item_name de cada renglón de la tabla
+        let selected_items = frm.doc.items || [];
+
+        // Usar el separador guardado en el formulario
+        let separator = frm.bom_items_separator || '|';
+        separator = separator.replace(/\\n/g, '\n'); // Convertir "\n" a salto de línea
+
+        let concatenated_values = selected_items
+            .map(item => item.item_name)
+            .join(separator);
+
+        // Copiar al portapapeles
+        copy_to_clipboard(concatenated_values);
+
+        // Mostrar una notificación tipo alert
+        frappe.show_alert({
+            message: __('Copied to clipboard'),
+            indicator: 'green'
+        });
+    });
+}
+
+// Función para copiar texto al portapapeles
+function copy_to_clipboard(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
 }

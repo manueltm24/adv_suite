@@ -1,0 +1,61 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-11-16 17:57:14.405870",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "general_section",
+  "product_finished_separator",
+  "project_materials_separator",
+  "bom_items_separator"
+ ],
+ "fields": [
+  {
+   "fieldname": "general_section",
+   "fieldtype": "Section Break",
+   "label": "General"
+  },
+  {
+   "description": "Use '\\n' para insertar un salto de l\u00ednea.",
+   "fieldname": "product_finished_separator",
+   "fieldtype": "Data",
+   "label": "Product Finished Separator"
+  },
+  {
+   "description": "Use '\\n' para insertar un salto de l\u00ednea.",
+   "fieldname": "project_materials_separator",
+   "fieldtype": "Data",
+   "label": "Project Materials Separator"
+  },
+  {
+   "description": "Use '\\n' para insertar un salto de l\u00ednea.",
+   "fieldname": "bom_items_separator",
+   "fieldtype": "Data",
+   "label": "BOM Items Separator"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2024-11-16 18:04:57.498594",
+ "modified_by": "Administrator",
+ "module": "Adv Suite",
+ "name": "Advertech Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

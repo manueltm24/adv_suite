@@ -1,58 +1,40 @@
 frappe.ui.form.on('Task', {
-    load: function(frm) {
-        console.log("load task");
-    },
     onload_post_render: function (frm) {
-        console.log("onload_post_render task");
         frm.get_field("custom_project_materials").grid.set_multiple_add("item_code");
-    },
-    refresh: function(frm) {
-        console.log("refresh task");
-        // Asegura que el CSS y el JS de Swiper se carguen una sola vez
-        if (!$('link[href="/assets/adv_suite/swiper/swiper-bundle.min.css"]').length) {
-            $('head').append('<link rel="stylesheet" href="/assets/adv_suite/swiper/swiper-bundle.min.css">');
-        }
-
-        if (!window.Swiper) {
-            $.getScript("/assets/adv_suite/swiper/swiper-bundle.min.js", function() {
-                initializeSwiper(frm);
-            });
-        } else {
-            initializeSwiper(frm);
-        }
-
-        // Verifica repetidamente si la sección de adjuntos está lista
-        function checkAttachmentsSection() {
-            const attachmentsSection = $('.form-sidebar .form-attachments .attachments-actions');
-            if (attachmentsSection.length && !$('#view-images-link').length) {
-                console.log("Adding view-images-link");
-                attachmentsSection.append(`
-                    <li class="sidebar-menu-item">
-                        <span class="octicon octicon-file-media"></span> <a href="#" id="view-images-link">${__("View Images")}</a>
-                    </li>
-                `);
-
-                // Asigna el evento de clic al enlace "View Images"
-                $('#view-images-link').on('click', function(event) {
-                    event.preventDefault();
-                    $('#slider-modal').show();
-                });
-            } else {
-                // Si la sección de adjuntos no está lista, verifica nuevamente después de un breve retraso
-                setTimeout(checkAttachmentsSection, 100);
+        // Recuperar los valores de los separadores desde Advertech Settings y guardarlos en el formulario
+        frappe.call({
+            method: 'frappe.client.get_value',
+            args: {
+                doctype: 'Advertech Settings',
+                fieldname: ['product_finished_separator', 'project_materials_separator']
+            },
+            callback: function(r) {
+                if (r.message) {
+                    frm.product_finished_separator = r.message.product_finished_separator || '|';
+                    frm.project_materials_separator = r.message.project_materials_separator || '|';
+                }
             }
+        });
+    },    
+    refresh: function (frm) {
+        initializeImageSlider(frm);
+    },
+    type: function(frm) {
+        // Obtener la referencia al campo multiselect
+        let field = frm.fields_dict['custom_product_finish']; 
+        if (field && field.$wrapper) {
+            add_copy_icon_to_label(field, frm);
+            add_copy_icon_to_table(frm);
+            // add_copy_icon_to_multiselect(field, frm);
         }
-
-        // Inicia la verificación de la sección de adjuntos
-        checkAttachmentsSection();
     }
 });
+
 
 frappe.ui.form.on('Project Materials', {
     item_code: function(frm, cdt, cdn) {
         let row = locals[cdt][cdn];
         if (row.item_code) {
-            console.log("item_code");
             frappe.db.get_value('Item', { 'name': row.item_code }, 'item_name', (r) => {
                 if (r && r.item_name) {
                     frappe.model.set_value(cdt, cdn, 'item_name', r.item_name);
@@ -65,7 +47,6 @@ frappe.ui.form.on('Project Materials', {
     item_name: function(frm, cdt, cdn) {
         let row = locals[cdt][cdn];
         if (row.item_name) {
-            console.log("item_name");
             frappe.db.get_value('Item', { 'item_name': row.item_name }, 'name', (r) => {
                 if (r && r.name) {
                     frappe.model.set_value(cdt, cdn, 'item_code', r.name);
@@ -77,77 +58,180 @@ frappe.ui.form.on('Project Materials', {
     }
 });
 
-function initializeSwiper(frm) {
-    // Elimina cualquier modal de slider existente al refrescar el formulario
-    if ($('#slider-modal').length) {
-        $('#slider-modal').remove();
+// Función para agregar el ícono de copiar al campo multiselect
+// Agregar un contenedor con ícono ** dentro del campo **
+function add_copy_icon_to_multiselect(field, frm) {
+    // Verificar si el ícono ya fue agregado para evitar duplicados
+    if (field.$wrapper.find('.copy-multiselect-icon').length) {
+        return;
     }
 
-    // Inserta el modal del slider en pantalla completa
-    $('body').append(`
-        <div id="slider-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.9); z-index: 1050; justify-content: center; align-items: center;">
-            <div class="swiper-container" style="width: 90%; height: 80%;">
-                <div class="swiper-wrapper"></div>
-                <div class="swiper-button-next" style="color: #fff;"></div>
-                <div class="swiper-button-prev" style="color: #fff;"></div>
-                <div class="swiper-pagination" style="color: #fff;"></div>
-            </div>
-            <button id="close-slider" style="position: absolute; top: 10px; right: 20px; background: transparent; border: none; color: white; font-size: 30px; cursor: pointer; z-index: 1100;">&times;</button>
-        </div>
+    // Agregar un contenedor con ícono dentro del campo
+    field.$wrapper.append(`
+        <span class="copy-multiselect-icon" 
+              style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer; font-size: 16px;" title="${__('Copy')}">
+            <svg class="icon icon-sm">
+                <use xlink:href="/assets/frappe/icons/timeless/icons.svg#icon-duplicate"></use>
+            </svg>
+        </span>
     `);
 
-    // Evento para cerrar el slider
-    $('#close-slider').on('click', function() {
-        $('#slider-modal').hide();
+    // Manejar el clic en el ícono
+    field.$wrapper.find('.copy-multiselect-icon').on('click', function () {
+        // Obtener los valores seleccionados del multiselect
+        let selected_items = field.value || [];
+
+        // Usar el separador guardado en el formulario
+        let separator = frm.product_finished_separator || '|';
+        separator = separator.replace(/\\n/g, '\n'); // Convertir "\n" a salto de línea
+
+        // Si los valores son objetos, acceder al campo específico (product_finish)
+        let concatenated_values = selected_items
+            .map(item => item.product_finish || item) // Cambia 'product_finish' al nombre del campo donde está la descripción
+            .join(separator);
+
+        // Copiar al portapapeles
+        copy_to_clipboard(concatenated_values);
+
+        // Mostrar una notificación tipo alert
+        frappe.show_alert({
+            message: __('Copied to clipboard'),
+            indicator: 'green'
+        });
     });
+}
 
-    // Recupera las imágenes adjuntas usando frappe.call
-    frappe.call({
-        method: 'frappe.client.get_list',
-        args: {
-            doctype: 'File',
-            filters: {
-                attached_to_doctype: cur_frm.doc.doctype,
-                attached_to_name: frm.doc.name,
-                // is_private: 0  // Opcional: si solo se quieren archivos públicos
-            },
-            fields: ['file_name', 'file_url']
-        },
-        callback: function(response) {
-            let files = response.message || [];
+// Función para copiar texto al portapapeles
+function copy_to_clipboard(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+}
 
-            // Filtra solo las imágenes
-            let imageFiles = files.filter(file => {
-                return /\.(jpg|jpeg|png|gif|jfif)$/i.test(file.file_name);
-            });
+// Función para agregar el ícono de copiar al lado derecho del label
+function add_copy_icon_to_label(field, frm) {
+    // Buscar el contenedor .form-column del campo
+    let form_column = field.$wrapper.closest('.form-column');
 
-            // Inserta cada imagen en el slider como un enlace
-            imageFiles.forEach(file => {
-                $('.swiper-wrapper').append(`
-                    <div class="swiper-slide">
-                            <img src="${file.file_url}" style="width: 100%; height: 100%; object-fit: contain;" alt="${file.file_name}">
-                    </div>
-                `);
-            });
+    // Si no encontramos el .form-column, detener
+    if (!form_column.length) {
+        console.error('No se encontró el contenedor .form-column');
+        return;
+    }
 
-            // Inicializa Swiper una vez que las imágenes están cargadas
-            if (imageFiles.length > 0) {
-                new Swiper('.swiper-container', {
-                    slidesPerView: 1, // Muestra solo una imagen a la vez
-                    spaceBetween: 10,
-                    navigation: {
-                        nextEl: '.swiper-button-next',
-                        prevEl: '.swiper-button-prev',
-                    },
-                    pagination: {
-                        el: '.swiper-pagination',
-                        clickable: true,
-                    },
-                });
-            } else {
-                // Si no hay imágenes, muestra un mensaje
-                $('.swiper-wrapper').html(`<p style='color: white; text-align: center;'>${__("No image attachments found for this {0}.", [__(frm.doc.doctype)])}</p>`);
-            }
-        }
+    // Buscar el label dentro del contenedor
+    let label_container = field.$wrapper.find('.control-label');
+    if (!label_container.length) {
+        console.error('No se encontró el contenedor del label (.control-label)');
+        return;
+    }
+
+    // Verificar si el ícono ya fue agregado
+    if (label_container.find('.copy-content-icon').length) {
+        return; // Evitar duplicados
+    }
+
+    // Insertar el ícono después del label
+    label_container.css('position', 'relative');
+    label_container.css('width', '100%');
+    label_container.append(`
+        <span class="copy-content-icon control-label" 
+              style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 16px;" title="${__('Copy')}">
+            <svg class="icon icon-sm">
+                <use xlink:href="/assets/frappe/icons/timeless/icons.svg#icon-duplicate"></use>
+            </svg>
+        </span>
+    `);
+
+    // Manejar el clic en el ícono
+    label_container.find('.copy-content-icon').on('click', function () {
+        // Obtener los valores seleccionados del multiselect
+        let selected_items = field.value || [];
+
+        // Usar el separador guardado en el formulario
+        let separator = frm.product_finished_separator || '|';
+        separator = separator.replace(/\\n/g, '\n'); // Convertir "\n" a salto de línea
+
+        // Si los valores son objetos, acceder al campo específico (product_finish)
+        let concatenated_values = selected_items
+            .map(item => item.product_finish || item) // Cambia 'product_finish' al nombre del campo donde está la descripción
+            .join(separator);
+
+        // Copiar al portapapeles
+        copy_to_clipboard(concatenated_values);
+
+        // Mostrar una notificación tipo alert
+        frappe.show_alert({
+            message: __('Copied to clipboard'),
+            indicator: 'green'
+        });
+    });
+}
+
+// Función para agregar el ícono de copiar a la tabla custom_project_materials
+function add_copy_icon_to_table(frm) {
+    let table_field = frm.fields_dict['custom_project_materials'];
+    if (!table_field) {
+        console.error('No se encontró el campo custom_project_materials');
+        return;
+    }
+
+    // Buscar el contenedor .form-column del campo
+    let form_column = table_field.$wrapper.closest('.form-column');
+
+    // Si no encontramos el .form-column, detener
+    if (!form_column.length) {
+        console.error('No se encontró el contenedor .form-column');
+        return;
+    }
+
+    // Buscar el label dentro del contenedor
+    let label_container = table_field.$wrapper.find('.control-label');
+    if (!label_container.length) {
+        console.error('No se encontró el contenedor del label (.control-label)');
+        return;
+    }
+
+    // Verificar si el ícono ya fue agregado
+    if (label_container.find('.copy-content-icon').length) {
+        return; // Evitar duplicados
+    }
+
+    // Insertar el ícono después del label
+    label_container.css('position', 'relative');
+    label_container.css('width', '100%');
+    label_container.append(`
+        <span class="copy-content-icon control-label" 
+              style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 16px;" title="${__('Copy')}">
+            <svg class="icon icon-sm">
+                <use xlink:href="/assets/frappe/icons/timeless/icons.svg#icon-duplicate"></use>
+            </svg>
+        </span>
+    `);
+
+    // Manejar el clic en el ícono
+    label_container.find('.copy-content-icon').on('click', function () {
+        // Obtener los valores del campo item_name de cada renglón de la tabla
+        let selected_items = frm.doc.custom_project_materials || [];
+
+        // Usar el separador guardado en el formulario
+        let separator = frm.project_materials_separator || '|';
+        separator = separator.replace(/\\n/g, '\n'); // Convertir "\n" a salto de línea
+
+        let concatenated_values = selected_items
+            .map(item => item.item_name)
+            .join(separator);
+
+        // Copiar al portapapeles
+        copy_to_clipboard(concatenated_values);
+
+        // Mostrar una notificación tipo alert
+        frappe.show_alert({
+            message: __('Copied to clipboard'),
+            indicator: 'green'
+        });
     });
 }
