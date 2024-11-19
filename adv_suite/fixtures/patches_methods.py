@@ -17,11 +17,13 @@ def remove_and_add_type_of_task():
 
     # Eliminar el registro 'Proyecto' si existe
     if frappe.db.exists("Task Type", "Proyecto"):
-        frappe.delete_doc("Task Type", "Proyecto")
-        frappe.clear_cache()
-        frappe.db.commit()
-        print("Registro 'Proyecto' eliminado de Tipo de Tarea.")
-
+        try:
+            frappe.delete_doc("Task Type", "Proyecto")
+            frappe.clear_cache()
+            frappe.db.commit()
+            print("Registro 'Proyecto' eliminado de Tipo de Tarea.")
+        except Exception as e:
+            print(f"Error al eliminar el registro 'Proyecto': {str(e)}")
     # Agregar el registro 'Producto' si no existe
     # if not frappe.db.exists("Task Type", "Producto"):
     #     task_type = frappe.get_doc({
