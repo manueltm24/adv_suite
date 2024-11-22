@@ -15,9 +15,24 @@ frappe.ui.form.on('Task', {
                 }
             }
         });
+        // Verificar si el campo type está establecido a "Producto"
+        if (frm.doc.type === "Producto") {
+            // Desencadenar el evento type
+            frm.trigger('type');
+        }
     },    
     refresh: function (frm) {
+        AttachmentObserverManager.start(frm);
         initializeImageSlider(frm);
+        frm.attachments.refresh = function () {
+            frm.refresh();
+        };
+    },
+    onload: function (frm) {
+        AttachmentObserverManager.start(frm);
+    },
+    before_unload: function () {
+        AttachmentObserverManager.stop();
     },
     type: function(frm) {
         // Obtener la referencia al campo multiselect

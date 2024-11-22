@@ -35,3 +35,107 @@ def remove_and_add_type_of_task():
     #     print("Registro 'Producto' agregado a Tipo de Tarea.")
 
     print("Se actualizaron los registros de Tipo de Tarea.")
+
+
+def create_custom_docperms():
+    custom_docperms = [
+        {
+            "parent": "Task Type",
+            "role": "All",
+            "permlevel": 0,
+            "read": 1,
+            "write": 1,
+            "create": 1,
+            "delete": 1,
+            "submit": 0,
+            "cancel": 0,
+            "amend": 0,
+            "email": 1,
+            "print": 1,
+            "export": 1,
+            "import": 1,
+            "report": 1,
+            "share": 1,
+            "select": 1,
+            "if_owner": 0,
+        },
+        {
+            "parent": "Product Finish",
+            "role": "All",
+            "permlevel": 0,
+            "read": 1,
+            "write": 1,
+            "create": 1,
+            "delete": 1,
+            "submit": 0,
+            "cancel": 0,
+            "amend": 0,
+            "email": 1,
+            "print": 1,
+            "export": 1,
+            "import": 1,
+            "report": 1,
+            "share": 1,
+            "select": 1,
+            "if_owner": 0,
+        },
+        {
+            "parent": "Item",
+            "role": "All",
+            "permlevel": 0,
+            "read": 1,
+            "write": 0,
+            "create": 0,
+            "delete": 0,
+            "submit": 0,
+            "cancel": 0,
+            "amend": 0,
+            "email": 0,
+            "print": 0,
+            "export": 0,
+            "import": 0,
+            "report": 0,
+            "share": 0,
+            "select": 0,
+            "if_owner": 0,
+        },
+        {
+            "parent": "Employee",
+            "role": "All",
+            "permlevel": 0,
+            "read": 1,
+            "write": 0,
+            "create": 0,
+            "delete": 0,
+            "submit": 0,
+            "cancel": 0,
+            "amend": 0,
+            "email": 0,
+            "print": 0,
+            "export": 0,
+            "import": 0,
+            "report": 0,
+            "share": 0,
+            "select": 0,
+            "if_owner": 0,
+        },
+    ]
+
+    for perm in custom_docperms:
+        # Verificar si ya existe el permiso
+        existing_perm = frappe.get_all(
+            "Custom DocPerm",
+            filters={
+                "parent": perm["parent"],
+                "role": perm["role"],
+                "permlevel": perm["permlevel"],
+            },
+        )
+        if not existing_perm:
+            # Crear el nuevo permiso
+            docperm = frappe.get_doc({"doctype": "Custom DocPerm", **perm})
+            docperm.insert()
+            frappe.db.commit()
+            print(f"Custom DocPerm creado para {perm['parent']} con role {perm['role']}.")
+        else:
+            print(f"Custom DocPerm ya existe para {perm['parent']} con role {perm['role']}.")

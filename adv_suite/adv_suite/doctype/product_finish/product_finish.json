@@ -18,7 +18,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-10-30 12:32:32.274865",
+ "modified": "2024-11-21 16:01:35.050434",
  "modified_by": "Administrator",
  "module": "Adv Suite",
  "name": "Product Finish",
@@ -34,6 +34,19 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "All",
+   "select": 1,
    "share": 1,
    "write": 1
   }

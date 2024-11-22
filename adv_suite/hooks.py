@@ -50,7 +50,8 @@ app_include_js = ["/assets/adv_suite/swiper/swiper-bundle.min.js", "/assets/adv_
 doctype_js = {"Quotation": "public/js/quotation_custom.js",
               "BOM": "public/js/bom_custom.js",
               "Project": "public/js/project_custom.js",
-              "Task": "public/js/task_custom.js"
+              "Task": "public/js/task_custom.js",
+              "Job Card": "public/js/job_card_custom.js"
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}

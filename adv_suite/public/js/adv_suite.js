@@ -1,7 +1,7 @@
 function initializeImageSlider(frm) {
     initializeSliderOnPageChange(frm);
     checkAndAddViewImagesLink(frm);
-    observeAttachments(frm);
+    AttachmentObserverManager.start(frm);
 }
 
 function initializeSliderOnPageChange(frm) {
@@ -82,7 +82,6 @@ function loadImagesIntoSlider(frm) {
         callback: function (response) {
             const files = response.message || [];
             const swiperWrapper = $('.swiper-wrapper');
-            console.log(files);
             if (files.length > 0) {
                 swiperWrapper.empty(); // Vaciar el contenedor
                 
@@ -134,9 +133,6 @@ function checkAndAddViewImagesLink(frm) {
             const files = response.message || [];
             const hasImages = files.some(file => /\.(jpg|jpeg|png|gif|jfif|webp)$/i.test(file.file_name));
             
-            console.log("hasImages");
-            console.log(hasImages);
-
             // Elimina enlaces previos
             const linkId = `view-images-link-${frm.doc.doctype.toLowerCase()}`;
             $(`#${linkId}`).remove();
@@ -167,42 +163,96 @@ function checkAndAddViewImagesLink(frm) {
     });
 }
 
-function observeAttachments(frm) {
-    const sidebar = document.querySelector('.form-sidebar .form-attachments');
-    if (sidebar) {
-        // Desconectar cualquier observador previo
-        if (window.attachmentObserver) {
-            window.attachmentObserver.disconnect();
-        }
+const AttachmentObserverManager = {
+    observer: null,
+    sidebarSelector: '.form-sidebar .form-attachments',
+
+    /**
+     * Inicia el observador en el contenedor de adjuntos
+     * @param {Object} frm - El formulario Frappe
+     */
+    start(frm) {
+        // Detén cualquier observador previo
+        this.stop();
 
         // Crear un nuevo observador
-        window.attachmentObserver = new MutationObserver((mutationsList) => {
+        this.observer = new MutationObserver(this.getOptimizedCallback(frm));
+
+        // Seleccionar el contenedor de adjuntos
+        const sidebar = document.querySelector(this.sidebarSelector);
+        if (sidebar) {
+            this.observer.observe(sidebar, { childList: true, subtree: true });
+            // console.log(`AttachmentObserverManager: Observador iniciado para ${frm.doctype} (${frm.docname}).`);
+        } else {
+            console.warn(`AttachmentObserverManager: Contenedor de adjuntos no encontrado para ${frm.doctype} (${frm.docname}).`);
+        }
+    },
+    start(frm) {
+        this.stop(); // Detiene cualquier observador previo
+    
+        const sidebar = document.querySelector(this.sidebarSelector);
+    
+        if (sidebar) {
+            // Observa si el nodo está cargado dinámicamente
+            if (!sidebar.hasChildNodes()) {
+                // console.warn(`AttachmentObserverManager: Contenedor vacío. Reintentando en 100ms...`);
+                setTimeout(() => this.start(frm), 100);
+                return;
+            }
+    
+            this.observer = new MutationObserver(this.getOptimizedCallback(frm));
+            this.observer.observe(sidebar, { childList: true, subtree: true });
+            // console.log(`AttachmentObserverManager: Observador iniciado para ${frm.doctype} (${frm.docname}).`);
+        } else {
+            console.warn(`AttachmentObserverManager: Contenedor de adjuntos no encontrado.`);
+        }
+    },
+    
+    /**
+     * Detiene y limpia el observador activo
+     */
+    stop() {
+        if (this.observer) {
+            this.observer.disconnect();
+            this.observer = null;
+            // console.log("AttachmentObserverManager: Observador detenido.");
+        }
+    },
+
+    /**
+     * Retorna un callback optimizado para manejar mutaciones
+     * @param {Object} frm - El formulario Frappe
+     * @returns {Function} - Callback optimizado
+     */
+    getOptimizedCallback(frm) {
+        const debounce = (func, delay) => {
+            let timeout;
+            return function (...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), delay);
+            };
+        };
+
+        return debounce((mutationsList) => {
             let shouldCheck = false;
             for (let mutation of mutationsList) {
-                if (mutation.type === 'childList' && (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0)) {
-                    // Verificar si el nodo agregado o eliminado es un adjunto
-                    for (let node of mutation.addedNodes) {
-                        if (node.nodeType === 1 && node.classList.contains('attachment-row')) {
-                            shouldCheck = true;
-                            break;
-                        }
-                    }
-                    for (let node of mutation.removedNodes) {
-                        if (node.nodeType === 1 && node.classList.contains('attachment-row')) {
-                            shouldCheck = true;
-                            break;
-                        }
-                    }
+                if (
+                    mutation.type === 'childList' &&
+                    (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0)
+                ) {
+                    // Detecta cambios relevantes en nodos adjuntos
+                    shouldCheck = Array.from(mutation.addedNodes).some(node =>
+                        node.nodeType === 1 && node.classList.contains('attachment-row')
+                    ) || Array.from(mutation.removedNodes).some(node =>
+                        node.nodeType === 1 && node.classList.contains('attachment-row')
+                    );
                 }
             }
             if (shouldCheck) {
-
+                // console.log(`AttachmentObserverManager: Cambios detectados en ${frm.doctype} (${frm.docname}).`);
                 checkAndAddViewImagesLink(frm);
                 loadImagesIntoSlider(frm);
-
             }
-        });
-
-        window.attachmentObserver.observe(sidebar, { childList: true, subtree: true });
+        }, 300); // 300ms de debounce
     }
-}
+};
