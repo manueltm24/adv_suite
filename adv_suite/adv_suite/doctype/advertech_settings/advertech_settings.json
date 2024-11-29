@@ -8,7 +8,9 @@
   "general_section",
   "product_finished_separator",
   "project_materials_separator",
-  "bom_items_separator"
+  "bom_items_separator",
+  "sales_tab",
+  "default_validity_period_for_the_quotation"
  ],
  "fields": [
   {
@@ -33,12 +35,23 @@
    "fieldname": "bom_items_separator",
    "fieldtype": "Data",
    "label": "BOM Items Separator"
+  },
+  {
+   "fieldname": "sales_tab",
+   "fieldtype": "Tab Break",
+   "label": "Sales"
+  },
+  {
+   "default": "15",
+   "fieldname": "default_validity_period_for_the_quotation",
+   "fieldtype": "Int",
+   "label": "Default validity period for the quotations"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-11-21 16:00:20.775072",
+ "modified": "2024-11-29 13:55:07.520448",
  "modified_by": "Administrator",
  "module": "Adv Suite",
  "name": "Advertech Settings",

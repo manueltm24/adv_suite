@@ -150,16 +150,17 @@ function add_copy_icon_to_label(field, frm) {
     }
 
     // Insertar el ícono después del label
+    label_container.addClass('like-disabled-input');
     label_container.css('position', 'relative');
     label_container.css('width', '100%');
     label_container.append(`
-        <span class="copy-content-icon control-label" 
-              style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 16px;" title="${__('Copy')}">
-            <svg class="icon icon-sm">
-                <use xlink:href="/assets/frappe/icons/timeless/icons.svg#icon-duplicate"></use>
+        <button class="btn icon-btn copy-content-icon" style="position: absolute; top: 0px; right: 1%;" onmouseover="this.classList.add('btn-default')" onmouseout="this.classList.remove('btn-default')" title="${__('Copy')}">
+            <svg class="es-icon es-line  icon-sm" style="" aria-hidden="true">
+                <use class="" href="#es-line-copy-light"></use>
             </svg>
-        </span>
+        </button>
     `);
+
 
     // Manejar el clic en el ícono
     label_container.find('.copy-content-icon').on('click', function () {
@@ -216,15 +217,15 @@ function add_copy_icon_to_table(frm) {
     }
 
     // Insertar el ícono después del label
+    label_container.addClass('like-disabled-input');
     label_container.css('position', 'relative');
     label_container.css('width', '100%');
     label_container.append(`
-        <span class="copy-content-icon control-label" 
-              style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 16px;" title="${__('Copy')}">
-            <svg class="icon icon-sm">
-                <use xlink:href="/assets/frappe/icons/timeless/icons.svg#icon-duplicate"></use>
+        <button class="btn icon-btn copy-content-icon" style="position: absolute; top: 0px; right: 1%;" onmouseover="this.classList.add('btn-default')" onmouseout="this.classList.remove('btn-default')" title="${__('Copy')}">
+            <svg class="es-icon es-line  icon-sm" style="" aria-hidden="true">
+                <use class="" href="#es-line-copy-light"></use>
             </svg>
-        </span>
+        </button>
     `);
 
     // Manejar el clic en el ícono

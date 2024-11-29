@@ -60,7 +60,7 @@ doctype_js = {"Quotation": "public/js/quotation_custom.js",
 # Svg Icons
 # ------------------
 # include app icons in desk
-# app_include_icons = "adv_suite/public/icons.svg"
+app_include_icons = "adv_suite/icons/icons.svg"
 
 # Home Pages
 # ----------

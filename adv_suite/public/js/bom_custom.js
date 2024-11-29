@@ -1,5 +1,13 @@
 frappe.ui.form.on('BOM', {
     onload: function(frm) {
+        // Verifica si el usuario tiene permiso para el nivel 3
+        if (frappe.perm.has_perm('BOM', 3) || frappe.user.has_role("Administrator")) {
+            // Si tiene permiso, muestra el campo
+            frm.set_df_property('custom_warehouse_verified_materials', 'hidden', 0);
+        } else {
+            // Si no tiene permiso, oculta el campo
+            frm.set_df_property('custom_warehouse_verified_materials', 'hidden', 1);
+        }        
     },
     onload_post_render: function(frm) {
         // Aplicar personalizaciones basadas en roles
@@ -309,15 +317,15 @@ function add_copy_icon_to_table(frm) {
     }
 
     // Insertar el ícono después del label
+    label_container.addClass('like-disabled-input');
     label_container.css('position', 'relative');
     label_container.css('width', '100%');
     label_container.append(`
-        <span class="copy-content-icon control-label" 
-              style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 16px;" title="${__('Copy')}">
-            <svg class="icon icon-sm">
-                <use xlink:href="/assets/frappe/icons/timeless/icons.svg#icon-duplicate"></use>
+        <button class="btn icon-btn copy-content-icon" style="position: absolute; top: 0px; right: 1%;" onmouseover="this.classList.add('btn-default')" onmouseout="this.classList.remove('btn-default')" title="${__('Copy')}">
+            <svg class="es-icon es-line  icon-sm" style="" aria-hidden="true">
+                <use class="" href="#es-line-copy-light"></use>
             </svg>
-        </span>
+        </button>
     `);
 
     // Manejar el clic en el ícono
