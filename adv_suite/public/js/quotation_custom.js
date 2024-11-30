@@ -41,7 +41,6 @@ frappe.ui.form.on('Quotation', {
                     if (project.customer) {
                         // Establecer el valor del campo customer en el campo party_name
                         frm.set_value('party_name', project.customer);
-                        // frm.set_value('party', 'Customer');  // Asegurarse de que el campo dinámico 'party' esté configurado correctamente
                     }
                 });
         }
@@ -51,7 +50,6 @@ frappe.ui.form.on('Quotation', {
         setTimeout(() => {
             // Llamar a custom_bom para cada ítem en la tabla items
             frm.doc.items.forEach(item => {
-                console.log('Calling custom_bom');
                 custom_bom(frm, item.doctype, item.name);
             });
         }, 100);

@@ -139,3 +139,21 @@ def create_custom_docperms():
             print(f"Custom DocPerm creado para {perm['parent']} con role {perm['role']}.")
         else:
             print(f"Custom DocPerm ya existe para {perm['parent']} con role {perm['role']}.")
+
+
+def update_sales_order_items_with_bom():
+    # Recuperar todas las filas de la tabla tabSales Order Item
+    sales_order_items = frappe.get_all("Sales Order Item", fields=["name", "quotation_item"])
+
+    for item in sales_order_items:
+        if item.quotation_item:
+            # Recuperar el valor de custom_bom de la tabla tabQuotation Item
+            custom_bom = frappe.db.get_value("Quotation Item", item.quotation_item, "custom_bom")
+            
+            if custom_bom:
+                # Asignar el valor recuperado a la columna bom_no de la fila correspondiente en tabSales Order Item
+                frappe.db.set_value("Sales Order Item", item.name, "bom_no", custom_bom)
+                print(f"Updated Sales Order Item {item.name} with BOM {custom_bom}")
+
+    frappe.db.commit()
+    print("Sales Order Items updated successfully.")
