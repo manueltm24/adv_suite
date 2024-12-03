@@ -1,13 +1,13 @@
 frappe.ui.form.on('BOM', {
     onload: function(frm) {
         // Verifica si el usuario tiene permiso para el nivel 3
-        if (frappe.perm.has_perm('BOM', 3) || frappe.user.has_role("Administrator")) {
-            // Si tiene permiso, muestra el campo
-            frm.set_df_property('custom_warehouse_verified_materials', 'hidden', 0);
-        } else {
-            // Si no tiene permiso, oculta el campo
-            frm.set_df_property('custom_warehouse_verified_materials', 'hidden', 1);
-        }        
+        // if (frappe.perm.has_perm('BOM', 3) || frappe.user.has_role("Administrator")) {
+        //     // Si tiene permiso, muestra el campo
+        //     frm.set_df_property('custom_warehouse_verified_materials', 'hidden', 0);
+        // } else {
+        //     // Si no tiene permiso, oculta el campo
+        //     frm.set_df_property('custom_warehouse_verified_materials', 'hidden', 1);
+        // }        
     },
     onload_post_render: function(frm) {
         // Aplicar personalizaciones basadas en roles

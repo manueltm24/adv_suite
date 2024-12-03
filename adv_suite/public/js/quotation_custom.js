@@ -24,14 +24,14 @@ frappe.ui.form.on('Quotation', {
                     }
                 });
         }
-        // Verifica si el usuario tiene permiso para el nivel 3
-        if (frappe.perm.has_perm('BOM', 3) || frappe.user.has_role("Administrator")) {
-            // Si tiene permiso, muestra el campo
-            frm.set_df_property('custom_accounting_verified_credit', 'hidden', 0);
-        } else {
-            // Si no tiene permiso, oculta el campo
-            frm.set_df_property('custom_accounting_verified_credit', 'hidden', 1);
-        }
+        // // Verifica si el usuario tiene permiso para el nivel 3
+        // if (frappe.perm.has_perm('Quotation', 3) || frappe.user.has_role("Administratore")) {
+        //     // Si tiene permiso, muestra el campo
+        //     frm.set_df_property('custom_accounting_verified_credit', 'hidden', 0);
+        // } else {
+        //     // Si no tiene permiso, oculta el campo
+        //     frm.set_df_property('custom_accounting_verified_credit', 'hidden', 1);
+        // }
     },
     custom_project: function(frm) {
         if (frm.doc.custom_project) {
@@ -57,69 +57,69 @@ frappe.ui.form.on('Quotation', {
     before_save: function(frm) {
         console.log('before_save');
         validate_rate_with_margin(frm);
-        frm.doc.items.forEach(item => {
-            console.log("            if (item.custom_bom && (item.margin_type !== item.__unsaved_margin_type || item.margin_rate_or_amount !== item.__unsaved_margin_rate_or_amount)) {");
-            console.log(item.margin_type, item.__unsaved_margin_type, item.margin_rate_or_amount, item.__unsaved_margin_rate_or_amount);
-            if (item.custom_bom && item.__unsaved_margin_type && item.__unsaved_margin_rate_or_amount && (item.margin_type !== item.__unsaved_margin_type || item.margin_rate_or_amount !== item.__unsaved_margin_rate_or_amount)) {
-                // Actualizar el BOM asociado
-                console.log(`Updating BOM ${item.custom_bom} ${item.margin_type} ${item.margin_rate_or_amount} ${item.margin_amount} ${item.rate_with_margin}`);
-                frappe.call({
-                    method: 'adv_suite.api.update_bom',
-                    args: {
-                        bom_name: item.custom_bom,
-                        margin_type: item.margin_type,
-                        margin_rate_or_amount: (item.margin_rate_or_amount)*100/(item.rate_with_margin - item.margin_rate_or_amount),
-                        margin_amount: item.margin_rate_or_amount,
-                        rate_with_margin: item.rate_with_margin
-                    },
-                    callback: function(r) {
-                        if (!r.exc) {
-                            console.log(`BOM ${item.custom_bom} ${item.custom_bom} ${item.custom_bom} ${item.custom_bom} ${item.custom_bom} updated successfully`);
-                        } else {
-                            console.error(`Error updating BOM ${item.custom_bom}:`, r.exc);
-                        }
-                    }
-                });
+        // frm.doc.items.forEach(item => {
+        //     console.log("            if (item.custom_bom && (item.margin_type !== item.__unsaved_margin_type || item.margin_rate_or_amount !== item.__unsaved_margin_rate_or_amount)) {");
+        //     console.log(item.margin_type, item.__unsaved_margin_type, item.margin_rate_or_amount, item.__unsaved_margin_rate_or_amount);
+        //     if (item.custom_bom && item.__unsaved_margin_type && item.__unsaved_margin_rate_or_amount && (item.margin_type !== item.__unsaved_margin_type || item.margin_rate_or_amount !== item.__unsaved_margin_rate_or_amount)) {
+        //         // Actualizar el BOM asociado
+        //         console.log(`Updating BOM ${item.custom_bom} ${item.margin_type} ${item.margin_rate_or_amount} ${item.margin_amount} ${item.rate_with_margin}`);
+        //         frappe.call({
+        //             method: 'adv_suite.api.update_bom',
+        //             args: {
+        //                 bom_name: item.custom_bom,
+        //                 margin_type: item.margin_type,
+        //                 margin_rate_or_amount: (item.margin_rate_or_amount)*100/(item.rate_with_margin - item.margin_rate_or_amount),
+        //                 margin_amount: item.margin_rate_or_amount,
+        //                 rate_with_margin: item.rate_with_margin
+        //             },
+        //             callback: function(r) {
+        //                 if (!r.exc) {
+        //                     console.log(`BOM ${item.custom_bom} ${item.custom_bom} ${item.custom_bom} ${item.custom_bom} ${item.custom_bom} updated successfully`);
+        //                 } else {
+        //                     console.error(`Error updating BOM ${item.custom_bom}:`, r.exc);
+        //                 }
+        //             }
+        //         });
 
-                // Actualizar la lista de precios seleccionada
-                if (frm.doc.selling_price_list) {
-                    frappe.call({
-                        method: 'frappe.client.get_list',
-                        args: {
-                            doctype: 'Item Price',
-                            filters: {
-                                price_list: frm.doc.selling_price_list,
-                                item_code: item.item_code
-                            },
-                            fields: ['name']
-                        },
-                        callback: function(r) {
-                            if (r.message && r.message.length > 0) {
-                                let item_price_name = r.message[0].name;
-                                frappe.call({
-                                    method: 'frappe.client.set_value',
-                                    args: {
-                                        doctype: 'Item Price',
-                                        name: item_price_name,
-                                        fieldname: 'price_list_rate',
-                                        value: item.custom_total_cost_of_bom
-                                    },
-                                    callback: function(r) {
-                                        if (!r.exc) {
-                                            console.log(`Price for item ${item.item_code} in price list ${frm.doc.selling_price_list} updated successfully`);
-                                        } else {
-                                            console.error(`Error updating price for item ${item.item_code} in price list ${frm.doc.selling_price_list}:`, r.exc);
-                                        }
-                                    }
-                                });
-                            } else {
-                                console.error(`Item Price not found for item ${item.item_code} in price list ${frm.doc.selling_price_list}`);
-                            }
-                        }
-                    });
-                }
-            }
-        });
+        //         // Actualizar la lista de precios seleccionada
+        //         if (frm.doc.selling_price_list) {
+        //             frappe.call({
+        //                 method: 'frappe.client.get_list',
+        //                 args: {
+        //                     doctype: 'Item Price',
+        //                     filters: {
+        //                         price_list: frm.doc.selling_price_list,
+        //                         item_code: item.item_code
+        //                     },
+        //                     fields: ['name']
+        //                 },
+        //                 callback: function(r) {
+        //                     if (r.message && r.message.length > 0) {
+        //                         let item_price_name = r.message[0].name;
+        //                         frappe.call({
+        //                             method: 'frappe.client.set_value',
+        //                             args: {
+        //                                 doctype: 'Item Price',
+        //                                 name: item_price_name,
+        //                                 fieldname: 'price_list_rate',
+        //                                 value: item.custom_total_cost_of_bom
+        //                             },
+        //                             callback: function(r) {
+        //                                 if (!r.exc) {
+        //                                     console.log(`Price for item ${item.item_code} in price list ${frm.doc.selling_price_list} updated successfully`);
+        //                                 } else {
+        //                                     console.error(`Error updating price for item ${item.item_code} in price list ${frm.doc.selling_price_list}:`, r.exc);
+        //                                 }
+        //                             }
+        //                         });
+        //                     } else {
+        //                         console.error(`Item Price not found for item ${item.item_code} in price list ${frm.doc.selling_price_list}`);
+        //                     }
+        //                 }
+        //             });
+        //         }
+        //     }
+        // });
     },
 
     refresh: function(frm) {
