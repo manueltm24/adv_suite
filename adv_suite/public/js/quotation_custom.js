@@ -24,14 +24,6 @@ frappe.ui.form.on('Quotation', {
                     }
                 });
         }
-        // // Verifica si el usuario tiene permiso para el nivel 3
-        // if (frappe.perm.has_perm('Quotation', 3) || frappe.user.has_role("Administratore")) {
-        //     // Si tiene permiso, muestra el campo
-        //     frm.set_df_property('custom_accounting_verified_credit', 'hidden', 0);
-        // } else {
-        //     // Si no tiene permiso, oculta el campo
-        //     frm.set_df_property('custom_accounting_verified_credit', 'hidden', 1);
-        // }
     },
     custom_project: function(frm) {
         if (frm.doc.custom_project) {
@@ -57,69 +49,6 @@ frappe.ui.form.on('Quotation', {
     before_save: function(frm) {
         console.log('before_save');
         validate_rate_with_margin(frm);
-        // frm.doc.items.forEach(item => {
-        //     console.log("            if (item.custom_bom && (item.margin_type !== item.__unsaved_margin_type || item.margin_rate_or_amount !== item.__unsaved_margin_rate_or_amount)) {");
-        //     console.log(item.margin_type, item.__unsaved_margin_type, item.margin_rate_or_amount, item.__unsaved_margin_rate_or_amount);
-        //     if (item.custom_bom && item.__unsaved_margin_type && item.__unsaved_margin_rate_or_amount && (item.margin_type !== item.__unsaved_margin_type || item.margin_rate_or_amount !== item.__unsaved_margin_rate_or_amount)) {
-        //         // Actualizar el BOM asociado
-        //         console.log(`Updating BOM ${item.custom_bom} ${item.margin_type} ${item.margin_rate_or_amount} ${item.margin_amount} ${item.rate_with_margin}`);
-        //         frappe.call({
-        //             method: 'adv_suite.api.update_bom',
-        //             args: {
-        //                 bom_name: item.custom_bom,
-        //                 margin_type: item.margin_type,
-        //                 margin_rate_or_amount: (item.margin_rate_or_amount)*100/(item.rate_with_margin - item.margin_rate_or_amount),
-        //                 margin_amount: item.margin_rate_or_amount,
-        //                 rate_with_margin: item.rate_with_margin
-        //             },
-        //             callback: function(r) {
-        //                 if (!r.exc) {
-        //                     console.log(`BOM ${item.custom_bom} ${item.custom_bom} ${item.custom_bom} ${item.custom_bom} ${item.custom_bom} updated successfully`);
-        //                 } else {
-        //                     console.error(`Error updating BOM ${item.custom_bom}:`, r.exc);
-        //                 }
-        //             }
-        //         });
-
-        //         // Actualizar la lista de precios seleccionada
-        //         if (frm.doc.selling_price_list) {
-        //             frappe.call({
-        //                 method: 'frappe.client.get_list',
-        //                 args: {
-        //                     doctype: 'Item Price',
-        //                     filters: {
-        //                         price_list: frm.doc.selling_price_list,
-        //                         item_code: item.item_code
-        //                     },
-        //                     fields: ['name']
-        //                 },
-        //                 callback: function(r) {
-        //                     if (r.message && r.message.length > 0) {
-        //                         let item_price_name = r.message[0].name;
-        //                         frappe.call({
-        //                             method: 'frappe.client.set_value',
-        //                             args: {
-        //                                 doctype: 'Item Price',
-        //                                 name: item_price_name,
-        //                                 fieldname: 'price_list_rate',
-        //                                 value: item.custom_total_cost_of_bom
-        //                             },
-        //                             callback: function(r) {
-        //                                 if (!r.exc) {
-        //                                     console.log(`Price for item ${item.item_code} in price list ${frm.doc.selling_price_list} updated successfully`);
-        //                                 } else {
-        //                                     console.error(`Error updating price for item ${item.item_code} in price list ${frm.doc.selling_price_list}:`, r.exc);
-        //                                 }
-        //                             }
-        //                         });
-        //                     } else {
-        //                         console.error(`Item Price not found for item ${item.item_code} in price list ${frm.doc.selling_price_list}`);
-        //                     }
-        //                 }
-        //             });
-        //         }
-        //     }
-        // });
     },
 
     refresh: function(frm) {
@@ -141,6 +70,10 @@ frappe.ui.form.on('Quotation', {
     before_submit: function(frm) {
         if (!frm.doc.custom_accounting_verified_credit) {
             frappe.msgprint(__('Es requerido confirmar que se ha realizado la verificación por Contabilidad del crédito y anticipo.'));
+            frappe.validated = false;
+        }
+        if (!frm.doc.custom_file_review) {
+            frappe.msgprint(__('Es requerido confirmar que se ha realizado la Revisión de Archivos.'));
             frappe.validated = false;
         }
         validate_warehouse_verification(frm);
@@ -229,8 +162,13 @@ function custom_bom(frm, cdt, cdn) {
                     // Calcular el costo unitario basado en la cantidad del BOM y la cantidad de la cotización
                     let unit_cost = total_cost / bom_quantity;
                     let unit_margin_amount = custom_margin_amount / bom_quantity;
+                    let rate_with_margin = unit_cost + unit_margin_amount;
 
-                    if (custom_margin_type === 'Percentage') {
+                    unit_cost = flt(unit_cost);
+                    unit_margin_amount = flt(unit_margin_amount);
+                    rate_with_margin = unit_cost + unit_margin_amount;
+
+                    if (custom_margin_type !== 'Amount') {
                         // custom_margin_rate_or_amount = flt(custom_rate_with_margin) - flt(total_cost);
                         custom_margin_type = 'Amount';
                     }
@@ -238,10 +176,12 @@ function custom_bom(frm, cdt, cdn) {
                     // Asignar los valores a los campos del Quotation Item
                     frappe.model.set_value(cdt, cdn, 'custom_total_cost_of_bom', unit_cost)
                         .then(() => frappe.model.set_value(cdt, cdn, 'price_list_rate', unit_cost))
+                        // .then(() => frappe.model.set_value(cdt, cdn, 'qty', bom_quantity))
                         .then(() => frappe.model.set_value(cdt, cdn, 'base_price_list_rate', unit_cost))
                         .then(() => frappe.model.set_value(cdt, cdn, 'rate', unit_cost))
                         .then(() => frappe.model.set_value(cdt, cdn, 'margin_type', custom_margin_type))
                         .then(() => frappe.model.set_value(cdt, cdn, 'margin_rate_or_amount', unit_margin_amount))
+                        .then(() => frappe.model.set_value(cdt, cdn, 'rate_with_margin', rate_with_margin))
                         .then(() => {
                             // Refrescar el campo 'custom_bom' en la fila actual
                             frm.refresh_field('items');
@@ -284,6 +224,7 @@ async function validate_rate_with_margin(frm) {
             let bom = await frappe.db.get_doc('BOM', item.custom_bom);
             let delta = 0.03;
             console.log('BOM custom_rate_with_margin:', bom.custom_rate_with_margin, 'Item rate:', item.rate * item.qty);
+            console.log('Diferencia:', Math.abs(bom.custom_rate_with_margin - item.rate * item.qty));
             if (Math.abs(bom.custom_rate_with_margin - item.rate * item.qty) > delta) {
                 console.log('BOM custom_rate_with_margin:', bom.custom_rate_with_margin, 'Item rate:', item.rate);
                 frappe.validated = false;
@@ -293,15 +234,18 @@ async function validate_rate_with_margin(frm) {
     }
 }
 
-// Función para validar la verificación de almacén antes de enviar
 async function validate_warehouse_verification(frm) {
     for (let item of frm.doc.items) {
         if (item.custom_bom) {
             let bom = await frappe.db.get_doc('BOM', item.custom_bom);
-            if (!bom.custom_warehouse_verified_materials) {
+            if (bom.docstatus === 2) { // Verificar si el BOM ha sido cancelado (docstatus = 2)
                 frappe.validated = false;
                 let bom_link = `<a href="/app/bom/${item.custom_bom}" target="_blank">${item.custom_bom}</a>`;
-                frappe.throw(__('No se ha realizado la verificación por almacén para el BOM ' + bom_link));
+                frappe.throw(__('El BOM ha sido cancelado: ' + bom_link));
+            } else if (bom.docstatus !== 1) { // Verificar que el BOM tenga estatus Submitted (docstatus = 1)
+                frappe.validated = false;
+                let bom_link = `<a href="/app/bom/${item.custom_bom}" target="_blank">${item.custom_bom}</a>`;
+                frappe.throw(__('No se ha realizado la validación por almacén del BOM: ' + bom_link));
             }
         }
     }

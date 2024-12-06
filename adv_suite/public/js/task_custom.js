@@ -20,6 +20,11 @@ frappe.ui.form.on('Task', {
             // Desencadenar el evento type
             frm.trigger('type');
         }
+        $(frm.fields_dict.custom_size.wrapper).find('textarea').css('height', '85px');
+        add_style_to_label(frm, 'custom_size');
+        // Establecer un tamaño mínimo para el campo custom_product_finish
+        set_min_size_for_field(frm, 'custom_product_finish', 'auto', '85px');
+
     },    
     refresh: function (frm) {
         AttachmentObserverManager.start(frm);
@@ -249,5 +254,52 @@ function add_copy_icon_to_table(frm) {
             message: __('Copied to clipboard'),
             indicator: 'green'
         });
+    });
+}
+
+function add_style_to_label(frm, fieldname) {
+    let field = frm.fields_dict[fieldname];
+    if (!field) {
+        console.error(`No se encontró el campo ${fieldname}`);
+        return;
+    }
+
+    // Buscar el contenedor .form-column del campo
+    let form_column = field.$wrapper.closest('.form-column');
+
+    // Si no encontramos el .form-column, detener
+    if (!form_column.length) {
+        console.error('No se encontró el contenedor .form-column');
+        return;
+    }
+
+    // Buscar el label dentro del contenedor
+    let label_container = field.$wrapper.find('.control-label');
+    if (!label_container.length) {
+        console.error('No se encontró el contenedor del label (.control-label)');
+        return;
+    }
+
+    // Verificar si el ícono ya fue agregado
+    if (form_column.find('.copy-icon').length) {
+        return; // Evitar duplicados
+    }
+
+    label_container.addClass('like-disabled-input');
+    label_container.css('position', 'relative');
+    label_container.css('width', '100%');
+}
+
+function set_min_size_for_field(frm, fieldname, minWidth, minHeight) {
+    let field = frm.fields_dict[fieldname];
+    if (!field) {
+        console.error(`No se encontró el campo ${fieldname}`);
+        return;
+    }
+
+    // Aplicar estilos CSS para establecer el tamaño mínimo
+    $(field.wrapper).find('.control-input').css({
+        'min-width': minWidth,
+        'min-height': minHeight
     });
 }

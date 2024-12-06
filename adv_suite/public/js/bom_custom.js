@@ -1,13 +1,6 @@
 frappe.ui.form.on('BOM', {
     onload: function(frm) {
-        // Verifica si el usuario tiene permiso para el nivel 3
-        // if (frappe.perm.has_perm('BOM', 3) || frappe.user.has_role("Administrator")) {
-        //     // Si tiene permiso, muestra el campo
-        //     frm.set_df_property('custom_warehouse_verified_materials', 'hidden', 0);
-        // } else {
-        //     // Si no tiene permiso, oculta el campo
-        //     frm.set_df_property('custom_warehouse_verified_materials', 'hidden', 1);
-        // }        
+
     },
     onload_post_render: function(frm) {
         // Aplicar personalizaciones basadas en roles
@@ -33,6 +26,10 @@ frappe.ui.form.on('BOM', {
             }
         });
         add_copy_icon_to_table(frm);
+        
+        // Ajustar la altura del campo custom_bom_description
+        $(frm.fields_dict.custom_bom_description.wrapper).find('textarea').css('height', '75px');
+
     },
     custom_margin_type: function(frm) {
         reset_margin_fields(frm);
@@ -47,6 +44,14 @@ frappe.ui.form.on('BOM', {
         // Recalcular los valores cuando custom_margin_amount cambie
         calculate_margin_values(frm);
     },
+    total_cost: function(frm) {
+        // Recalcular los valores cuando total_cost cambie
+        calculate_margin_values(frm);
+    },
+    custom_total_to_quote: function(frm) {
+        // Recalcular los valores cuando custom_total_to_quote cambie
+        calculate_margin_values(frm);
+    },
     items_on_form_rendered(doc, doctype,docname) {
         // se ejecuta cuando se renderiza el formulario modal
 	},
@@ -59,59 +64,159 @@ frappe.ui.form.on('BOM', {
 
 });
 
+// function calculate_margin_values(frm) {
+//     let margin_type = frm.doc.custom_margin_type || 'Percentage'; // Valor predeterminado 'Percentage'
+//     let margin_rate_or_amount = frm.doc.custom_margin_rate_or_amount || 0; // Valor predeterminado 0
+
+//     let effective_item_rate = frm.doc.total_cost || 0;
+
+
+//     if (margin_type== "Percentage") {
+//         let margin_rate_or_amount = frm.doc.custom_margin_rate_or_amount || 0;
+//         let margin_amount = flt(effective_item_rate) * (flt(margin_rate_or_amount) / 100);
+//         frm.set_value('custom_margin_amount', margin_amount);
+//         frm.set_value('custom_rate_with_margin', flt(effective_item_rate) + margin_amount);
+//     } else if (margin_type== "Amount"){
+//         let margin_amount = frm.doc.custom_margin_amount || 0;
+//         // Calcular el porcentaje de margen basado en el costo efectivo del ítem
+//         effective_item_rate = flt(effective_item_rate);
+//         margin_amount = flt(margin_amount);
+//         let margin_rate_or_amount = 0;
+//         if (effective_item_rate > 0) {
+//             margin_rate_or_amount = (margin_amount / effective_item_rate) * 100;
+//         }
+//         frm.set_value('custom_margin_rate_or_amount', margin_rate_or_amount);
+//         frm.set_value('custom_rate_with_margin', flt(effective_item_rate) + flt(margin_amount));
+//     }else{
+//         console.log('No se ha seleccionado un tipo de margen');
+//         frm.set_value('custom_rate_with_margin', effective_item_rate);
+//     }
+
+//     if (!margin_type) {
+//         toggle_margin_fields(frm);
+//     } else {
+//         if (margin_type== "Percentage") {
+//             frm.toggle_display('custom_margin_rate_or_amount', true);
+//             if (frm.doc.custom_margin_rate_or_amount == 0) {
+//                 frm.toggle_display('custom_margin_amount', false);
+//             }else{
+//                 frm.toggle_display('custom_margin_amount', true);
+//                 frm.set_df_property('custom_margin_amount', 'read_only', 1);
+//             }        
+//         } else if (margin_type== "Amount"){
+//             frm.toggle_display('custom_margin_amount', true);
+
+//             if (frm.doc.custom_margin_amount == 0) {
+//                 frm.toggle_display('custom_margin_rate_or_amount', false);
+//             }else{
+//                 frm.toggle_display('custom_margin_rate_or_amount', true);
+//                 frm.set_df_property('custom_margin_rate_or_amount', 'read_only', 1);
+//             }
+    
+//         }
+//     }
+// }
+
+// function reset_margin_fields(frm) {
+//     frm.set_value('custom_margin_rate_or_amount', 0);
+//     frm.set_value('custom_margin_amount', 0);
+//     frm.set_df_property('custom_margin_rate_or_amount', 'read_only', 0);
+//     frm.set_df_property('custom_margin_amount', 'read_only', 0);
+// }
+
+// function toggle_margin_fields(frm) {
+//     frm.toggle_display('custom_margin_rate_or_amount', false);
+//     frm.toggle_display('custom_margin_amount', false);
+// }
+
+
 function calculate_margin_values(frm) {
+    let margin_type = frm.doc.custom_margin_type || 'Percentage'; // Valor predeterminado 'Percentage'
+    let margin_rate_or_amount = frm.doc.custom_margin_rate_or_amount || 0; // Valor predeterminado 0
+
     let effective_item_rate = frm.doc.total_cost || 0;
 
-    if (frm.doc.custom_margin_type) {
-
-        if (frm.doc.custom_margin_type == "Percentage") {
-            let margin_rate_or_amount = frm.doc.custom_margin_rate_or_amount || 0;
-            let margin_amount = flt(effective_item_rate) * (flt(margin_rate_or_amount) / 100);
-            frm.set_value('custom_margin_amount', margin_amount);
-            frm.set_value('custom_rate_with_margin', flt(effective_item_rate) + margin_amount);
-        } else if (frm.doc.custom_margin_type == "Amount"){
-            let margin_amount = frm.doc.custom_margin_amount || 0;
-            let margin_rate_or_amount = (flt(margin_amount) / flt(effective_item_rate)) * 100;
-            frm.set_value('custom_margin_rate_or_amount', margin_rate_or_amount);
-            frm.set_value('custom_rate_with_margin', flt(effective_item_rate) + flt(margin_amount));
-        }else{
-            console.log('No se ha seleccionado un tipo de margen');
-            frm.set_value('custom_rate_with_margin', effective_item_rate);
+    if (margin_type == "Percentage") {
+        let margin_rate_or_amount = frm.doc.custom_margin_rate_or_amount || 0;
+        let margin_amount = flt(effective_item_rate) * (flt(margin_rate_or_amount) / 100);
+        frm.set_value('custom_margin_amount', margin_amount);
+        frm.set_value('custom_rate_with_margin', flt(effective_item_rate) + margin_amount);
+    } else if (margin_type == "Amount") {
+        let margin_amount = frm.doc.custom_margin_amount || 0;
+        // Calcular el porcentaje de margen basado en el costo efectivo del ítem
+        effective_item_rate = flt(effective_item_rate);
+        margin_amount = flt(margin_amount);
+        let margin_rate_or_amount = 0;
+        if (effective_item_rate > 0) {
+            margin_rate_or_amount = (margin_amount / effective_item_rate) * 100;
         }
+        frm.set_value('custom_margin_rate_or_amount', margin_rate_or_amount);
+        frm.set_value('custom_rate_with_margin', flt(effective_item_rate) + flt(margin_amount));
+    } else if (margin_type == "Total to Quote") {
+        let custom_total_to_quote = frm.doc.custom_total_to_quote || effective_item_rate;
 
-        if (!frm.doc.custom_margin_type) {
-            toggle_margin_fields(frm);
-        } else {
-            if (frm.doc.custom_margin_type == "Percentage") {
-                frm.toggle_display('custom_margin_rate_or_amount', true);
-                if (frm.doc.custom_margin_rate_or_amount == 0) {
-                    frm.toggle_display('custom_margin_amount', false);
-                }else{
-                    frm.toggle_display('custom_margin_amount', true);
-                    frm.set_df_property('custom_margin_amount', 'read_only', 1);
-                }        
-            } else if (frm.doc.custom_margin_type == "Amount"){
+        let margin_amount = custom_total_to_quote - effective_item_rate;
+        let margin_rate_or_amount = 0;
+        if (effective_item_rate > 0) {
+            margin_rate_or_amount = (margin_amount / effective_item_rate) * 100;
+        }
+        frm.set_value('custom_margin_rate_or_amount', margin_rate_or_amount);
+        frm.set_value('custom_margin_amount', margin_amount);
+        frm.set_value('custom_rate_with_margin', custom_total_to_quote);
+    } else {
+        console.log('No se ha seleccionado un tipo de margen');
+        frm.set_value('custom_rate_with_margin', effective_item_rate);
+    }
+
+    if (!margin_type) {
+        toggle_margin_fields(frm);
+    } else {
+        if (margin_type == "Percentage") {
+            frm.toggle_display('custom_margin_rate_or_amount', true);
+            frm.toggle_display('custom_total_to_quote', false);
+            
+            if (frm.doc.custom_margin_rate_or_amount == 0) {
+                frm.toggle_display('custom_margin_amount', false);
+            } else {
                 frm.toggle_display('custom_margin_amount', true);
-
-                if (frm.doc.custom_margin_amount == 0) {
-                    frm.toggle_display('custom_margin_rate_or_amount', false);
-                }else{
-                    frm.toggle_display('custom_margin_rate_or_amount', true);
-                    frm.set_df_property('custom_margin_rate_or_amount', 'read_only', 1);
-                }
-        
+                frm.set_df_property('custom_margin_amount', 'read_only', 1);
+            }
+            frm.toggle_display('custom_rate_with_margin', true);
+        } else if (margin_type == "Amount") {
+            frm.toggle_display('custom_margin_amount', true);
+            frm.toggle_display('custom_total_to_quote', false);
+            if (frm.doc.custom_margin_amount == 0) {
+                frm.toggle_display('custom_margin_rate_or_amount', false);
+            } else {
+                frm.toggle_display('custom_margin_rate_or_amount', true);
+                frm.set_df_property('custom_margin_rate_or_amount', 'read_only', 1);
+            }
+            frm.toggle_display('custom_rate_with_margin', true); 
+        } else if (margin_type == "Total to Quote") {
+            frm.toggle_display('custom_total_to_quote', true);
+            frm.toggle_display('custom_margin_rate_or_amount', false);
+            frm.toggle_display('custom_margin_amount', false);
+            frm.toggle_display('custom_rate_with_margin', false);
+            if (frm.doc.custom_margin_amount == 0) {
+                frm.toggle_display('custom_margin_rate_or_amount', false);
+            } else {
+                frm.toggle_display('custom_margin_rate_or_amount', true);
+                frm.set_df_property('custom_margin_rate_or_amount', 'read_only', 1);
+            }
+            if (frm.doc.custom_margin_rate_or_amount == 0) {
+                frm.toggle_display('custom_margin_amount', false);
+            } else {
+                frm.toggle_display('custom_margin_amount', true);
+                frm.set_df_property('custom_margin_amount', 'read_only', 1);
             }
         }
-
-    }else{
-        console.log('No se ha seleccionado un tipo de margen**');
-        frm.set_value('custom_rate_with_margin', effective_item_rate);
     }
 }
 
 function reset_margin_fields(frm) {
     frm.set_value('custom_margin_rate_or_amount', 0);
     frm.set_value('custom_margin_amount', 0);
+    frm.set_value('custom_total_to_quote', 0);
     frm.set_df_property('custom_margin_rate_or_amount', 'read_only', 0);
     frm.set_df_property('custom_margin_amount', 'read_only', 0);
 }
@@ -119,6 +224,7 @@ function reset_margin_fields(frm) {
 function toggle_margin_fields(frm) {
     frm.toggle_display('custom_margin_rate_or_amount', false);
     frm.toggle_display('custom_margin_amount', false);
+    frm.toggle_display('custom_total_to_quote', false);
 }
 
 
@@ -316,20 +422,35 @@ function add_copy_icon_to_table(frm) {
         return; // Evitar duplicados
     }
 
-    // Insertar el ícono después del label
+    // // Insertar el ícono después del label
+    // label_container.addClass('like-disabled-input');
+    // label_container.css('position', 'relative');
+    // label_container.css('width', '100%');
+    // label_container.append(`
+    //     <button class="btn icon-btn copy-content-icon" style="position: absolute; top: 0px; right: 1%;" onmouseover="this.classList.add('btn-default')" onmouseout="this.classList.remove('btn-default')" title="${__('Copy')}">
+    //         <svg class="es-icon es-line  icon-sm" style="" aria-hidden="true">
+    //             <use class="" href="#es-line-copy-light"></use>
+    //         </svg>
+    //     </button>
+    // `);
+
     label_container.addClass('like-disabled-input');
     label_container.css('position', 'relative');
     label_container.css('width', '100%');
-    label_container.append(`
-        <button class="btn icon-btn copy-content-icon" style="position: absolute; top: 0px; right: 1%;" onmouseover="this.classList.add('btn-default')" onmouseout="this.classList.remove('btn-default')" title="${__('Copy')}">
-            <svg class="es-icon es-line  icon-sm" style="" aria-hidden="true">
-                <use class="" href="#es-line-copy-light"></use>
+
+    // Insertar el ícono fuera del label pero dentro del form-column
+    form_column.css('position', 'relative');
+    form_column.append(`
+        <button class="btn icon-btn copy-content-icon" style="position: absolute; top: 14px; right: 25px; transform: translateY(-50%);" onmouseover="this.classList.add('btn-default')" onmouseout="this.classList.remove('btn-default')"  title="${__('Set time')}">
+            <svg class="es-icon es-line icon-sm" style="filter: opacity(0.55); stroke:none;" aria-hidden="true">
+                 <use class="" href="#es-line-copy-light"></use>
             </svg>
         </button>
     `);
 
+
     // Manejar el clic en el ícono
-    label_container.find('.copy-content-icon').on('click', function () {
+    form_column.find('.copy-content-icon').on('click', function () {
         // Obtener los valores del campo item_name de cada renglón de la tabla
         let selected_items = frm.doc.items || [];
 
