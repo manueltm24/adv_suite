@@ -72,10 +72,10 @@ frappe.ui.form.on('Quotation', {
             frappe.msgprint(__('Es requerido confirmar que se ha realizado la verificación por Contabilidad del crédito y anticipo.'));
             frappe.validated = false;
         }
-        if (!frm.doc.custom_file_review) {
-            frappe.msgprint(__('Es requerido confirmar que se ha realizado la Revisión de Archivos.'));
-            frappe.validated = false;
-        }
+        // if (!frm.doc.custom_file_review) {
+        //     frappe.msgprint(__('Es requerido confirmar que se ha realizado la Revisión de Archivos.'));
+        //     frappe.validated = false;
+        // }
         validate_warehouse_verification(frm);
     },
 });

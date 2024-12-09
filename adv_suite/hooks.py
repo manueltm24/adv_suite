@@ -139,9 +139,9 @@ before_uninstall = "adv_suite.uninstall.before_uninstall"
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-# 	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {
+	"Work Order": "adv_suite.overrides.CustomWorkOrder"
+}
 
 # Document Events
 # ---------------
