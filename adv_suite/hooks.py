@@ -29,7 +29,9 @@ app_license = "mit"
 # app_include_js = "/assets/adv_suite/js/adv_suite.js"
 
 app_include_css = "/assets/adv_suite/swiper/swiper-bundle.min.css"
-app_include_js = ["/assets/adv_suite/swiper/swiper-bundle.min.js", "/assets/adv_suite/js/adv_suite.js"]
+app_include_js = ["/assets/adv_suite/swiper/swiper-bundle.min.js", 
+                  "/assets/adv_suite/js/adv_suite.js",
+                  "/assets/adv_suite/js/doctype_custom.js"]
 
 
 # include js, css files in header of web template
@@ -154,6 +156,14 @@ override_doctype_class = {
 # 		"on_trash": "method"
 # 	}
 # }
+doc_events = {
+    "*": {
+        "on_update": "adv_suite.project_hooks.log_change_in_project",
+        "after_insert": "adv_suite.project_hooks.log_change_in_project",
+        "on_cancel": "adv_suite.project_hooks.log_change_in_project",
+        "on_trash": "adv_suite.project_hooks.log_change_in_project"
+    }
+}
 
 # Scheduled Tasks
 # ---------------

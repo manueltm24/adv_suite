@@ -40,4 +40,7 @@ File Review,Revisión de Archivos,
 Delivery Mode,Modo de Entrega,
 Installation Base,Base de Instalación,
 Finished Product Name,Nombre del Producto Terminado,
-
+{} has been updated. Changes: {},{} ha sido actualizado. Cambios: {},
+{} {} has been created.,{} {} ha sido creado.,
+{} {} has been deleted.,{} {} ha sido eliminado.,
+{} {} has been cancelled.,{} {} ha sido cancelado.,
