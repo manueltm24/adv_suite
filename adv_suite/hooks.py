@@ -269,6 +269,7 @@ override_whitelisted_methods = {
 fixtures = [
     # "Task Type",
     # "Product Finish",
+    "Manufacturing Settings",
     {"dt":"Custom Field", "filters":[["module","=","Adv Suite"]]},
     {"dt":"Property Setter", "filters":[["module","=","Adv Suite"]]},
 ]
