@@ -54,7 +54,8 @@ doctype_js = {"Quotation": "public/js/quotation_custom.js",
               "Project": "public/js/project_custom.js",
               "Task": "public/js/task_custom.js",
               "Job Card": "public/js/job_card_custom.js",
-              "Sales Order": "public/js/sales_order_custom.js"
+              "Sales Order": "public/js/sales_order_custom.js",
+              "Stock Entry": "public/js/stock_entry_custom.js"
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -141,9 +142,9 @@ before_uninstall = "adv_suite.uninstall.before_uninstall"
 # ---------------
 # Override standard doctype classes
 
-override_doctype_class = {
-	"Work Order": "adv_suite.overrides.CustomWorkOrder"
-}
+# override_doctype_class = {
+# 	"Work Order": "adv_suite.overrides.CustomWorkOrder"
+# }
 
 # Document Events
 # ---------------
@@ -198,6 +199,7 @@ override_whitelisted_methods = {
 	# "frappe.desk.doctype.event.event.get_events": "adv_suite.event.get_events"
       "erpnext.selling.doctype.sales_order.sales_order.get_work_order_items": "adv_suite.api.get_work_order_items",
       "erpnext.selling.doctype.quotation.quotation.make_sales_order": "adv_suite.api.make_sales_order",
+    #   "erpnext.stock.doctype.stock_entry.stock_entry.get_items": "adv_suite.api.get_items",
 }
 #
 # each overriding function accepts a `data` argument;
