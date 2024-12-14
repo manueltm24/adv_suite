@@ -25,6 +25,11 @@ frappe.ui.form.on('Quotation', {
                 });
         }
     },
+    onload_post_render: function(frm) {        
+        // Ajustar la altura del campo custom_bom_description
+        $(frm.fields_dict.custom_notes.wrapper).find('textarea').css('height', '75px');
+
+    },
     custom_project: function(frm) {
         if (frm.doc.custom_project) {
             // Recuperar el proyecto
@@ -222,7 +227,7 @@ async function validate_rate_with_margin(frm) {
     for (let item of frm.doc.items) {
         if (item.custom_bom) {
             let bom = await frappe.db.get_doc('BOM', item.custom_bom);
-            let delta = 0.03;
+            let delta = 0.05;
             console.log('BOM custom_rate_with_margin:', bom.custom_rate_with_margin, 'Item rate:', item.rate * item.qty);
             console.log('Diferencia:', Math.abs(bom.custom_rate_with_margin - item.rate * item.qty));
             if (Math.abs(bom.custom_rate_with_margin - item.rate * item.qty) > delta) {

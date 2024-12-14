@@ -1,6 +1,6 @@
 frappe.ui.form.on('BOM', {
     onload: function(frm) {
-
+        calculate_margin_values(frm);
     },
     onload_post_render: function(frm) {
         // Aplicar personalizaciones basadas en roles
@@ -132,6 +132,7 @@ frappe.ui.form.on('BOM', {
 
 function calculate_margin_values(frm) {
     let margin_type = frm.doc.custom_margin_type || 'Percentage'; // Valor predeterminado 'Percentage'
+    frm.set_value('custom_margin_type', margin_type);
     let margin_rate_or_amount = frm.doc.custom_margin_rate_or_amount || 0; // Valor predeterminado 0
 
     let effective_item_rate = frm.doc.total_cost || 0;

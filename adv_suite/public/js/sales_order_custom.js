@@ -116,3 +116,19 @@ erpnext.selling.SalesOrderController = CustomSalesOrderController;
 
 // Aplicar la nueva clase al formulario actual
 extend_cscript(cur_frm.cscript, new erpnext.selling.SalesOrderController({ frm: cur_frm }));
+
+
+
+frappe.ui.form.on('Sales Order', {
+    onload: function(frm) {
+        $(frm.fields_dict.custom_notes.wrapper).find('textarea').css('height', '75px');
+    },
+    onload_post_render: function(frm) {        
+        // Ajustar la altura del campo custom_notes
+        $(frm.fields_dict.custom_notes.wrapper).find('textarea').css('height', '75px');
+
+    },
+    refresh: function(frm) {
+        $(frm.fields_dict.custom_notes.wrapper).find('textarea').css('height', '75px');
+    }
+});

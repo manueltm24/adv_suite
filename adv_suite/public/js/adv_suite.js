@@ -1,3 +1,5 @@
+let attachmentsDeleted = false;
+
 function initializeImageSlider(frm) {
     initializeSliderOnPageChange(frm);
     checkAndAddViewImagesLink(frm);
@@ -35,14 +37,18 @@ function createSliderModal(frm) {
 
     // Inserta el modal del slider en pantalla completa
     $('body').append(`
-        <div id="slider-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.9); z-index: 1050; justify-content: center; align-items: center;">
+        <div id="slider-modal" style="display: none; position: fixed; top: 0; left: -5px; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.9); z-index: 1050; justify-content: center; align-items: center;">
             <div class="swiper-container" style="width: 100%; height: 90%;">
                 <div class="swiper-wrapper"></div>
                 <div class="swiper-button-next" style="color: #fff;"></div>
                 <div class="swiper-button-prev" style="color: #fff;"></div>
                 <div class="swiper-pagination" style="color: #fff;"></div>
             </div>
-            <button id="close-slider" style="position: absolute; top: 10px; right: 20px; background: transparent; border: none; color: white; font-size: 30px; cursor: pointer; z-index: 1100;">&times;</button>
+            <button id="close-slider" class="btn btn-modal-close btn-link" style="position: absolute; top: 0px; right: 30px; background: transparent; border: none; color: white; font-size: 30px; cursor: pointer; z-index: 1100;">
+                <svg class="icon icon-md" aria-hidden="true">
+                    <use class="close-alt" href="#icon-close-swiper"></use>
+                </svg>
+            </button>
         </div>
     `);
 
@@ -61,6 +67,10 @@ function createSliderModal(frm) {
     // Evento para cerrar el slider
     $('#close-slider').on('click', function () {
         $('#slider-modal').hide();
+        if (attachmentsDeleted) {
+            cur_frm.reload_doc(); // Recargar el documento para actualizar los adjuntos
+            attachmentsDeleted = false; // Restablecer la variable
+        }    
     });
 
     // Inicializar el slider vacío
@@ -76,7 +86,7 @@ function loadImagesIntoSlider(frm) {
                 attached_to_doctype: frm.doc.doctype,
                 attached_to_name: frm.doc.name,
             },
-            fields: ['file_name', 'file_url', 'creation'],
+            fields: ['file_name', 'file_url', 'creation', 'name'],
             order_by: 'creation asc'
         },
         callback: function (response) {
@@ -86,15 +96,21 @@ function loadImagesIntoSlider(frm) {
                 swiperWrapper.empty(); // Vaciar el contenedor
                 
                 files.forEach(file => {
+                    console.log(file);
                     if (/\.(jpg|jpeg|png|gif|jfif|webp)$/i.test(file.file_name)) {
                         swiperWrapper.append(`
-                            <div class="swiper-slide" style="display: flex; justify-content: center; align-items: center;">
+                            <div class="swiper-slide" style="display: flex; justify-content: center; align-items: center; position: relative;">
                                 <img src="${file.file_url}" alt="${file.file_name}" style="width: auto; height: 100%; max-height: 90vh; object-fit: contain;">
+                                <button class="delete-image-btn" data-file-name="${file.name}" class="btn muted" style="position: absolute; top: 15px; right: 70px; background: rgba(14, 8, 8, 1); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer;">
+                                    <svg class="icon  icon-md" style="stroke:#fff" aria-hidden="true">
+			                            <use class="" href="#icon-delete"></use>
+		                            </svg>
+                                </button>                                
                             </div>
                         `);
                     }
                 });
-
+                
                 const loopMode = files.length > 1; // Habilitar el modo de bucle solo si hay más de una diapositiva
                 mySwiper = new Swiper('.swiper-container', {
                     loop: loopMode,
@@ -106,7 +122,7 @@ function loadImagesIntoSlider(frm) {
                         nextEl: '.swiper-button-next',
                         prevEl: '.swiper-button-prev',
                     },
-                });
+                });                
             } else {
                 swiperWrapper.html(`<p style='color: white; text-align: center;'>${__("No image attachments found for this {0}.", [__(frm.doc.doctype)])}</p>`);
             }
@@ -256,3 +272,41 @@ const AttachmentObserverManager = {
         }, 300); // 300ms de debounce
     }
 };
+
+// Manejar el evento de clic para eliminar la imagen
+$(document).on('click', '.delete-image-btn', function () {
+    const fileName = $(this).data('file-name');
+    frappe.confirm(__('Are you sure you want to delete this image?'), function () {
+        frappe.call({
+            method: 'frappe.client.delete',
+            args: {
+                doctype: 'File',
+                name: fileName
+            },
+            callback: function (response) {
+                if (!response.exc) {
+
+                    // Marcar que se han eliminado adjuntos
+                    attachmentsDeleted = true;
+
+                    // Verificar si el Swiper tiene más de una diapositiva
+                    if (mySwiper.slides.length > 1) {
+                        // Eliminar la diapositiva de la imagen del Swiper
+                        mySwiper.removeSlide(mySwiper.activeIndex);
+                        checkAndAddViewImagesLink(cur_frm);
+                    } else {
+                        // Destruir el Swiper y actualizar los adjuntos
+                        mySwiper.destroy(true, true);
+                        $('#slider-modal').hide();
+                        cur_frm.reload_doc(); // Recargar el documento para actualizar los adjuntos
+                        attachmentsDeleted = false; // Restablecer la variable
+                    }
+
+                    frappe.show_alert({ message: __('Image deleted successfully'), indicator: 'green' });
+                } else {
+                    frappe.show_alert({ message: __('Failed to delete image'), indicator: 'red' });
+                }
+            }
+        });
+    });
+});
