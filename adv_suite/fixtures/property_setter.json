@@ -110,5 +110,21 @@
   "property_type": "Check",
   "row_name": null,
   "value": "1"
+ },
+ {
+  "default_value": null,
+  "doc_type": "Task",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocType",
+  "field_name": null,
+  "is_system_generated": 0,
+  "modified": "2024-12-14 12:57:45.772635",
+  "module": "Adv Suite",
+  "name": "Task-main-make_attachments_public",
+  "property": "make_attachments_public",
+  "property_type": "Check",
+  "row_name": null,
+  "value": "1"
  }
 ]
