@@ -96,7 +96,6 @@ function loadImagesIntoSlider(frm) {
                 swiperWrapper.empty(); // Vaciar el contenedor
                 
                 files.forEach(file => {
-                    console.log(file);
                     if (/\.(jpg|jpeg|png|gif|jfif|webp)$/i.test(file.file_name)) {
                         swiperWrapper.append(`
                             <div class="swiper-slide" style="display: flex; justify-content: center; align-items: center; position: relative;">

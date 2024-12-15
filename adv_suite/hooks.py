@@ -49,7 +49,8 @@ app_include_js = ["/assets/adv_suite/swiper/swiper-bundle.min.js",
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-doctype_js = {"Quotation": "public/js/quotation_custom.js",
+doctype_js = {
+              "Quotation": "public/js/quotation_custom.js",
               "BOM": "public/js/bom_custom.js",
               "Project": "public/js/project_custom.js",
               "Task": "public/js/task_custom.js",
