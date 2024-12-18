@@ -25,9 +25,6 @@ app_license = "mit"
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/adv_suite/css/adv_suite.css"
-# app_include_js = "/assets/adv_suite/js/adv_suite.js"
-
 app_include_css = "/assets/adv_suite/swiper/swiper-bundle.min.css"
 app_include_js = ["/assets/adv_suite/swiper/swiper-bundle.min.js", 
                   "/assets/adv_suite/js/adv_suite.js",
@@ -52,13 +49,12 @@ app_include_js = ["/assets/adv_suite/swiper/swiper-bundle.min.js",
 doctype_js = {
               "Quotation": "public/js/quotation_custom.js",
               "BOM": "public/js/bom_custom.js",
-              "Project": "public/js/project_custom.js",
               "Task": "public/js/task_custom.js",
               "Job Card": "public/js/job_card_custom.js",
               "Sales Order": "public/js/sales_order_custom.js",
-              "Stock Entry": "public/js/stock_entry_custom.js"
+              "Stock Entry": "public/js/stock_entry_custom.js",
 }
-# doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
+# doctype_list_js = {"Task" : "public/js/task_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
@@ -164,6 +160,9 @@ doc_events = {
         "after_insert": "adv_suite.project_hooks.log_change_in_project",
         "on_cancel": "adv_suite.project_hooks.log_change_in_project",
         "on_trash": "adv_suite.project_hooks.log_change_in_project"
+    },
+        "ToDo": {
+        "on_update": "adv_suite.todo_hooks.update_custom_last_assignment_date"
     }
 }
 

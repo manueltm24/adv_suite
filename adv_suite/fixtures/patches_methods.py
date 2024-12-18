@@ -157,3 +157,19 @@ def update_sales_order_items_with_bom():
 
     frappe.db.commit()
     print("Sales Order Items updated successfully.")
+
+
+def update_custom_last_assignment_date():
+    # Obtener todas las tareas
+    tasks = frappe.get_all("Task", fields=["name"])
+
+    for task in tasks:
+        # Obtener la última asignación para la tarea
+        last_assignment = frappe.db.get_value("ToDo", {"reference_type": "Task", "reference_name": task.name}, "creation", order_by="creation desc")
+
+        if last_assignment:
+            # Actualizar el campo custom_last_assignment_date
+            print(f"Updating Task {task.name} with last assignment date {last_assignment}")
+            frappe.db.set_value("Task", task.name, "custom_last_assignment_date", last_assignment)
+
+    frappe.db.commit()    

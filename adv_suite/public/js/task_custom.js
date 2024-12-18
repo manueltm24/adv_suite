@@ -26,19 +26,6 @@ frappe.ui.form.on('Task', {
         set_min_size_for_field(frm, 'custom_product_finish', 'auto', '85px');
 
     },    
-    refresh: function (frm) {
-        AttachmentObserverManager.start(frm);
-        initializeImageSlider(frm);
-        frm.attachments.refresh = function () {
-            frm.refresh();
-        };
-    },
-    onload: function (frm) {
-        AttachmentObserverManager.start(frm);
-    },
-    before_unload: function () {
-        AttachmentObserverManager.stop();
-    },
     type: function(frm) {
         // Obtener la referencia al campo multiselect
         let field = frm.fields_dict['custom_product_finish']; 
