@@ -149,8 +149,7 @@ function checkAndAddViewImagesLink(frm) {
             const hasImages = files.some(file => /\.(jpg|jpeg|png|gif|jfif|webp)$/i.test(file.file_name));
             
             // Elimina enlaces previos
-            const linkId = `view-images-link-${frm.doc.doctype.toLowerCase()}`;
-            $(`#${linkId}`).remove();
+            const linkId = `view-images-link-${frm.doc.doctype.toLowerCase().replace(/\s+/g, '-')}`;            $(`#${linkId}`).remove();
             $('.sidebar-menu-item').remove();
 
             if (hasImages) {

@@ -73,23 +73,3 @@ frappe.ui.form.Form = CustomFrappeForm;
 // Aplicar la nueva clase al formulario actual
 if (cur_frm)
     extend_cscript(cur_frm.cscript, new frappe.ui.form.Form({ frm: cur_frm }));
-
-
-
-frappe.ui.form.on('*', {
-    refresh: function (frm) {
-        AttachmentObserverManager.start(frm);
-        initializeImageSlider(frm);
-        if (frm.attachments) {
-            frm.attachments.refresh = function () {
-                frm.refresh();
-            };
-        }
-    },
-    onload: function (frm) {
-        AttachmentObserverManager.start(frm);
-    },
-    before_unload: function () {
-        AttachmentObserverManager.stop();
-    }
-});
