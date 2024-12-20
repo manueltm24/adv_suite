@@ -15,7 +15,7 @@ def update_custom_last_assignment_date(doc, method):
                 task = frappe.get_doc("Task", doc.reference_name)
                 task.save()
                 
-                frappe.msgprint(f"Last Assignment Date updated successfully for Task: {doc.reference_name}")
+                # frappe.msgprint(f"Last Assignment Date updated successfully for Task: {doc.reference_name}")
             finally:
                 # Restablecer la bandera
                 frappe.flags.in_update_custom_last_assignment_date = False

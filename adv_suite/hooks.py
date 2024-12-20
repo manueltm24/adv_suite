@@ -26,10 +26,7 @@ app_license = "mit"
 
 # include js, css files in header of desk.html
 app_include_css = "/assets/adv_suite/swiper/swiper-bundle.min.css"
-app_include_js = ["/assets/adv_suite/swiper/swiper-bundle.min.js", 
-                  "/assets/adv_suite/js/adv_suite.js",
-                  "/assets/adv_suite/js/doctype_custom.js"]
-
+app_include_js = ["/assets/adv_suite/swiper/swiper-bundle.min.js", "adv_suite.bundle.js"]
 
 # include js, css files in header of web template
 # web_include_css = "/assets/adv_suite/css/adv_suite.css"
@@ -47,12 +44,13 @@ app_include_js = ["/assets/adv_suite/swiper/swiper-bundle.min.js",
 
 # include js in doctype views
 doctype_js = {
-              "Quotation": "public/js/quotation_custom.js",
-              "BOM": "public/js/bom_custom.js",
-              "Task": "public/js/task_custom.js",
-              "Job Card": "public/js/job_card_custom.js",
-              "Sales Order": "public/js/sales_order_custom.js",
-              "Stock Entry": "public/js/stock_entry_custom.js",
+              "Quotation": "public/js/quotation/quotation_custom.js",
+              "BOM": "public/js/bom/bom_custom.js",
+              "Task": "public/js/task/task_custom.js",
+              "Job Card": "public/js/job_card/job_card_custom.js",
+              "Sales Order": "public/js/sales_order/sales_order_custom.js",
+              "Stock Entry": "public/js/stock_entry/stock_entry_custom.js",
+              "Project": "public/js/project/project_custom.js",
 }
 # doctype_list_js = {"Task" : "public/js/task_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}

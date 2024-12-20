@@ -1,4 +1,6 @@
-class CustomFrappeForm  extends frappe.ui.form.Form {
+import { slider } from './adv_suite.js';
+
+class CustomFrappeForm extends frappe.ui.form.Form {
     setup() {
         super.setup();
     }
@@ -18,7 +20,7 @@ class CustomFrappeForm  extends frappe.ui.form.Form {
     }
     before_unload(frm) {
         super.before_unload(frm);
-        AttachmentObserverManager.stop();
+        slider.AttachmentObserverManager.stop();
     }
     onload_post_render(frm) {
         super.onload_post_render(frm);
@@ -27,8 +29,8 @@ class CustomFrappeForm  extends frappe.ui.form.Form {
 
     initializeSliderAndObserver() {
         console.log("Initializing slider and observer for", this.doc.doctype);
-        AttachmentObserverManager.start(this);
-        initializeImageSlider(this);
+        slider.AttachmentObserverManager.start(this);
+        slider.initializeImageSlider(this);
         if (this.attachments) {
             this.attachments.refresh = () => {
                 this.refresh();
@@ -58,7 +60,7 @@ class CustomFrappeForm  extends frappe.ui.form.Form {
                 frm: me,
                 files: dataTransfer.files,
                 folder: "Home/Attachments",
-                make_attachments_public: true, // los establece como públicos por defecto
+                make_attachments_public: true, // los establece como públicos por defecto 
                 on_success(file_doc) {
                     me.attachments.attachment_uploaded(file_doc);
                 },
@@ -73,3 +75,42 @@ frappe.ui.form.Form = CustomFrappeForm;
 // Aplicar la nueva clase al formulario actual
 if (cur_frm)
     extend_cscript(cur_frm.cscript, new frappe.ui.form.Form({ frm: cur_frm }));
+
+
+// Manejar el evento de clic para eliminar la imagen
+$(document).on('click', '.delete-image-btn', function () {
+    const fileName = $(this).data('file-name');
+    frappe.confirm(__('Are you sure you want to delete this image?'), function () {
+        frappe.call({
+            method: 'frappe.client.delete',
+            args: {
+                doctype: 'File',
+                name: fileName
+            },
+            callback: function (response) {
+                if (!response.exc) {
+
+                    // Marcar que se han eliminado adjuntos
+                    slider.attachmentsDeleted = true;
+
+                    // Verificar si el Swiper tiene más de una diapositiva
+                    if (slider.mySwiper.slides.length > 1) {
+                        // Eliminar la diapositiva de la imagen del Swiper
+                        slider.mySwiper.removeSlide(slider.mySwiper.activeIndex);
+                        slider.checkAndAddViewImagesLink(cur_frm);
+                    } else {
+                        // Destruir el Swiper y actualizar los adjuntos
+                        slider.mySwiper.destroy(true, true);
+                        $('#slider-modal').hide();
+                        cur_frm.reload_doc(); // Recargar el documento para actualizar los adjuntos
+                        slider.attachmentsDeleted = false; // Restablecer la variable
+                    }
+
+                    frappe.show_alert({ message: __('Image deleted successfully'), indicator: 'green' });
+                } else {
+                    frappe.show_alert({ message: __('Failed to delete image'), indicator: 'red' });
+                }
+            }
+        });
+    });
+});

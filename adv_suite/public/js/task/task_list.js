@@ -1,3 +1,4 @@
+// No se usa en esta versión, ya que se establece en el property setter del orden de la lista
 frappe.listview_settings['Task'] = {
     onload: function(listview) {
         listview.sort_selector = {

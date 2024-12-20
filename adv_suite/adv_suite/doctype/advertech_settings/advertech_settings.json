@@ -10,7 +10,9 @@
   "project_materials_separator",
   "bom_items_separator",
   "sales_tab",
-  "default_validity_period_for_the_quotation"
+  "default_validity_period_for_the_quotation",
+  "tasks_tab",
+  "warranty_tasks"
  ],
  "fields": [
   {
@@ -46,12 +48,23 @@
    "fieldname": "default_validity_period_for_the_quotation",
    "fieldtype": "Int",
    "label": "Default validity period for the quotations"
+  },
+  {
+   "fieldname": "tasks_tab",
+   "fieldtype": "Tab Break",
+   "label": "Tasks"
+  },
+  {
+   "fieldname": "warranty_tasks",
+   "fieldtype": "Table MultiSelect",
+   "label": "Warranty Tasks",
+   "options": "Warranty Task"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2024-11-29 13:55:07.520448",
+ "modified": "2024-12-20 15:10:05.802019",
  "modified_by": "Administrator",
  "module": "Adv Suite",
  "name": "Advertech Settings",

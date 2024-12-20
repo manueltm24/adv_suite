@@ -1,0 +1,1 @@
+import "./job_card/job_card_custom";

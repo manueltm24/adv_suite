@@ -263,3 +263,29 @@ def _custom_make_sales_order(source_name, target_doc=None, ignore_permissions=Fa
 	)
 
 	return doclist
+
+@frappe.whitelist()
+def create_tasks_from_warranty_templates(project_name):
+	# Obtener el documento de configuración de Advertech
+	advertech_settings = frappe.get_single("Advertech Settings")
+	warranty_tasks = advertech_settings.warranty_tasks
+
+	if not warranty_tasks:
+		frappe.throw(_("Warranty tasks are not set up"))
+		return
+
+	for task_template in warranty_tasks:
+		print(task_template)
+		template = frappe.get_doc("Task", task_template)
+		# Crear una nueva tarea basada en la plantilla
+		new_task = frappe.get_doc({
+			"doctype": "Task",
+			"subject": template.subject,
+			"project": project_name,
+			"is_template": 0
+		})
+		new_task.insert()
+		frappe.db.commit()
+		
+		print(f"Tarea '{task_template}' creada en el proyecto '{project_name}'.")
+		frappe.msgprint(_("All warranty tasks have been created"))

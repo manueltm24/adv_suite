@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../apps/adv_suite/adv_suite/public/js/project/project_custom.js"],
+  "sourcesContent": ["frappe.ui.form.on('Project', {\n    refresh: function(frm) {\n        debugger;\n        frm.add_custom_button(__('Create Warranty Tasks'), function() {\n            frappe.call({\n                method: 'adv_suite.api.create_tasks_from_warranty_templates',\n                args: {\n                    project_name: frm.doc.name\n                },\n                callback: function(r) {\n                    if (r.message) {\n                        frappe.msgprint(r.message);\n                    }\n                }\n            });\n        });\n    }\n});\n"],
+  "mappings": ";;AAAA,SAAO,GAAG,KAAK,GAAG,WAAW;AAAA,IACzB,SAAS,SAAS,KAAK;AACnB;AACA,UAAI,kBAAkB,GAAG,uBAAuB,GAAG,WAAW;AAC1D,eAAO,KAAK;AAAA,UACR,QAAQ;AAAA,UACR,MAAM;AAAA,YACF,cAAc,IAAI,IAAI;AAAA,UAC1B;AAAA,UACA,UAAU,SAAS,GAAG;AAClB,gBAAI,EAAE,SAAS;AACX,qBAAO,SAAS,EAAE,OAAO;AAAA,YAC7B;AAAA,UACJ;AAAA,QACJ,CAAC;AAAA,MACL,CAAC;AAAA,IACL;AAAA,EACJ,CAAC;",
+  "names": []
+}

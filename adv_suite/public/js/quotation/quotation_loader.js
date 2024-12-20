@@ -1,0 +1,1 @@
+frappe.require("quotation.bundle.js");

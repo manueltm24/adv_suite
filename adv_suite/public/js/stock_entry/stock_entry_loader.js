@@ -1,0 +1,1 @@
+frappe.require("stock_entry.bundle.js");

@@ -1,0 +1,193 @@
+(() => {
+  // ../adv_suite/adv_suite/public/js/task/task_custom.js
+  frappe.ui.form.on("Task", {
+    onload_post_render: function(frm) {
+      frm.get_field("custom_project_materials").grid.set_multiple_add("item_code");
+      frappe.call({
+        method: "frappe.client.get_value",
+        args: {
+          doctype: "Advertech Settings",
+          fieldname: ["product_finished_separator", "project_materials_separator"]
+        },
+        callback: function(r) {
+          if (r.message) {
+            frm.product_finished_separator = r.message.product_finished_separator || "|";
+            frm.project_materials_separator = r.message.project_materials_separator || "|";
+          }
+        }
+      });
+      if (frm.doc.type === "Producto") {
+        frm.trigger("type");
+      }
+      $(frm.fields_dict.custom_size.wrapper).find("textarea").css("height", "85px");
+      add_style_to_label(frm, "custom_size");
+      set_min_size_for_field(frm, "custom_product_finish", "auto", "85px");
+    },
+    type: function(frm) {
+      let field = frm.fields_dict["custom_product_finish"];
+      if (field && field.$wrapper) {
+        add_copy_icon_to_label(field, frm);
+        add_copy_icon_to_table(frm);
+      }
+    }
+  });
+  frappe.ui.form.on("Project Materials", {
+    item_code: function(frm, cdt, cdn) {
+      let row = locals[cdt][cdn];
+      if (row.item_code) {
+        frappe.db.get_value("Item", { "name": row.item_code }, "item_name", (r) => {
+          if (r && r.item_name) {
+            frappe.model.set_value(cdt, cdn, "item_name", r.item_name);
+          } else {
+            frappe.msgprint(__("Item Code {0} not found", [row.item_code]));
+          }
+        });
+      }
+    },
+    item_name: function(frm, cdt, cdn) {
+      let row = locals[cdt][cdn];
+      if (row.item_name) {
+        frappe.db.get_value("Item", { "item_name": row.item_name }, "name", (r) => {
+          if (r && r.name) {
+            frappe.model.set_value(cdt, cdn, "item_code", r.name);
+          } else {
+            frappe.msgprint(__("Item Name {0} not found", [row.item_name]));
+          }
+        });
+      }
+    }
+  });
+  function copy_to_clipboard(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textArea);
+  }
+  function add_copy_icon_to_label(field, frm) {
+    let form_column = field.$wrapper.closest(".form-column");
+    if (!form_column.length) {
+      console.error("No se encontr\xF3 el contenedor .form-column");
+      return;
+    }
+    let label_container = field.$wrapper.find(".control-label");
+    if (!label_container.length) {
+      console.error("No se encontr\xF3 el contenedor del label (.control-label)");
+      return;
+    }
+    if (label_container.find(".copy-content-icon").length) {
+      return;
+    }
+    label_container.addClass("like-disabled-input");
+    label_container.css("position", "relative");
+    label_container.css("width", "100%");
+    label_container.append(`
+        <button class="btn icon-btn copy-content-icon" style="position: absolute; top: 0px; right: 1%;" onmouseover="this.classList.add('btn-default')" onmouseout="this.classList.remove('btn-default')" title="${__("Copy")}">
+            <svg class="es-icon es-line  icon-sm" style="" aria-hidden="true">
+                <use class="" href="#es-line-copy-light"></use>
+            </svg>
+        </button>
+    `);
+    label_container.find(".copy-content-icon").on("click", function() {
+      let selected_items = field.value || [];
+      let separator = frm.product_finished_separator || "|";
+      separator = separator.replace(/\\n/g, "\n");
+      let concatenated_values = selected_items.map((item) => item.product_finish || item).join(separator);
+      copy_to_clipboard(concatenated_values);
+      frappe.show_alert({
+        message: __("Copied to clipboard"),
+        indicator: "green"
+      });
+    });
+  }
+  function add_copy_icon_to_table(frm) {
+    let table_field = frm.fields_dict["custom_project_materials"];
+    if (!table_field) {
+      console.error("No se encontr\xF3 el campo custom_project_materials");
+      return;
+    }
+    let form_column = table_field.$wrapper.closest(".form-column");
+    if (!form_column.length) {
+      console.error("No se encontr\xF3 el contenedor .form-column");
+      return;
+    }
+    let label_container = table_field.$wrapper.find(".control-label");
+    if (!label_container.length) {
+      console.error("No se encontr\xF3 el contenedor del label (.control-label)");
+      return;
+    }
+    if (label_container.find(".copy-content-icon").length) {
+      return;
+    }
+    label_container.addClass("like-disabled-input");
+    label_container.css("position", "relative");
+    label_container.css("width", "100%");
+    label_container.append(`
+        <button class="btn icon-btn copy-content-icon" style="position: absolute; top: 0px; right: 1%;" onmouseover="this.classList.add('btn-default')" onmouseout="this.classList.remove('btn-default')" title="${__("Copy")}">
+            <svg class="es-icon es-line  icon-sm" style="" aria-hidden="true">
+                <use class="" href="#es-line-copy-light"></use>
+            </svg>
+        </button>
+    `);
+    label_container.find(".copy-content-icon").on("click", function() {
+      let selected_items = frm.doc.custom_project_materials || [];
+      let separator = frm.project_materials_separator || "|";
+      separator = separator.replace(/\\n/g, "\n");
+      let concatenated_values = selected_items.map((item) => item.item_name).join(separator);
+      copy_to_clipboard(concatenated_values);
+      frappe.show_alert({
+        message: __("Copied to clipboard"),
+        indicator: "green"
+      });
+    });
+  }
+  function add_style_to_label(frm, fieldname) {
+    let field = frm.fields_dict[fieldname];
+    if (!field) {
+      console.error(`No se encontr\xF3 el campo ${fieldname}`);
+      return;
+    }
+    let form_column = field.$wrapper.closest(".form-column");
+    if (!form_column.length) {
+      console.error("No se encontr\xF3 el contenedor .form-column");
+      return;
+    }
+    let label_container = field.$wrapper.find(".control-label");
+    if (!label_container.length) {
+      console.error("No se encontr\xF3 el contenedor del label (.control-label)");
+      return;
+    }
+    if (form_column.find(".copy-icon").length) {
+      return;
+    }
+    label_container.addClass("like-disabled-input");
+    label_container.css("position", "relative");
+    label_container.css("width", "100%");
+  }
+  function set_min_size_for_field(frm, fieldname, minWidth, minHeight) {
+    let field = frm.fields_dict[fieldname];
+    if (!field) {
+      console.error(`No se encontr\xF3 el campo ${fieldname}`);
+      return;
+    }
+    $(field.wrapper).find(".control-input").css({
+      "min-width": minWidth,
+      "min-height": minHeight
+    });
+  }
+
+  // ../adv_suite/adv_suite/public/js/task/task_list.js
+  frappe.listview_settings["Task"] = {
+    onload: function(listview) {
+      listview.sort_selector = {
+        field: "custom_last_assignment_date",
+        order: "ASC"
+      };
+      listview.page.fields_dict.sort_by.df.options = [
+        { label: __("Last Assignment Date"), value: "CASE WHEN custom_last_assignment_date IS NULL THEN 1 ELSE 0 END ASC, custom_last_assignment_date ASC" }
+      ];
+    }
+  };
+})();
+//# sourceMappingURL=task.bundle.TNKMJMF3.js.map

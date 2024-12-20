@@ -1,0 +1,1 @@
+frappe.require("sales_order.bundle.js");

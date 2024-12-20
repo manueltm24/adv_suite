@@ -1,0 +1,1 @@
+import "./stock_entry/stock_entry_custom";

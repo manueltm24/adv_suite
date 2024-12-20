@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../apps/adv_suite/adv_suite/public/js/todo/todo_custom.js"],
+  "sourcesContent": ["frappe.ui.form.on('ToDo', {\n    after_save: function(frm) {\n        if (frm.doc.reference_type === \"Task\" && frm.doc.reference_name) {\n            frappe.call({\n                method: \"frappe.client.set_value\",\n                args: {\n                    doctype: \"Task\",\n                    name: frm.doc.reference_name,\n                    fieldname: \"custom_last_assignment_date\",\n                    value: frm.doc.creation\n                },\n                callback: function(response) {\n                    if (!response.exc) {\n                        frappe.msgprint(__('Last Assignment Date updated successfully for Task: {0}', [frm.doc.reference_name]));\n                    }\n                }\n            });\n        }\n    }\n});\n"],
+  "mappings": ";;AAAA,SAAO,GAAG,KAAK,GAAG,QAAQ;AAAA,IACtB,YAAY,SAAS,KAAK;AACtB,UAAI,IAAI,IAAI,mBAAmB,UAAU,IAAI,IAAI,gBAAgB;AAC7D,eAAO,KAAK;AAAA,UACR,QAAQ;AAAA,UACR,MAAM;AAAA,YACF,SAAS;AAAA,YACT,MAAM,IAAI,IAAI;AAAA,YACd,WAAW;AAAA,YACX,OAAO,IAAI,IAAI;AAAA,UACnB;AAAA,UACA,UAAU,SAAS,UAAU;AACzB,gBAAI,CAAC,SAAS,KAAK;AACf,qBAAO,SAAS,GAAG,2DAA2D,CAAC,IAAI,IAAI,cAAc,CAAC,CAAC;AAAA,YAC3G;AAAA,UACJ;AAAA,QACJ,CAAC;AAAA,MACL;AAAA,IACJ;AAAA,EACJ,CAAC;",
+  "names": []
+}

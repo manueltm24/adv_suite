@@ -173,3 +173,18 @@ def update_custom_last_assignment_date():
             frappe.db.set_value("Task", task.name, "custom_last_assignment_date", last_assignment)
 
     frappe.db.commit()    
+
+def add_type_of_task_garantia():
+    print("Agregando la opción 'Garantía' de Tipo de Tarea...")
+
+    if not frappe.db.exists("Task Type", "Garantía"):
+        task_type = frappe.get_doc({
+            "doctype": "Task Type",
+            "task_type": "Garantía",
+            "name": "Garantía"  # Establecer el nombre del documento
+        })
+        task_type.insert()
+        frappe.db.commit()
+        print("Registro 'Garantía' agregado a Tipo de Tarea.")
+
+    print("Se actualizaron los registros de Tipo de Tarea.")

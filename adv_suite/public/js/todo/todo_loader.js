@@ -1,0 +1,1 @@
+frappe.require("todo.bundle.js");

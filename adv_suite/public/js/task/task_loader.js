@@ -1,0 +1,1 @@
+frappe.require("task.bundle.js");
