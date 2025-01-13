@@ -209,6 +209,9 @@ def _custom_make_sales_order(source_name, target_doc=None, ignore_permissions=Fa
 				"Sales Partner", source.referral_sales_partner, "commission_rate"
 			)
 
+		if source.custom_project:
+			target.project = source.custom_project
+
 		target.flags.ignore_permissions = ignore_permissions
 		target.run_method("set_missing_values")
 		target.run_method("calculate_taxes_and_totals")
@@ -266,26 +269,31 @@ def _custom_make_sales_order(source_name, target_doc=None, ignore_permissions=Fa
 
 @frappe.whitelist()
 def create_tasks_from_warranty_templates(project_name):
-	# Obtener el documento de configuración de Advertech
-	advertech_settings = frappe.get_single("Advertech Settings")
-	warranty_tasks = advertech_settings.warranty_tasks
+    # Obtener el documento de configuración de Advertech
+    advertech_settings = frappe.get_single("Advertech Settings")
+    warranty_tasks = advertech_settings.warranty_tasks
 
-	if not warranty_tasks:
-		frappe.throw(_("Warranty tasks are not set up"))
-		return
+    if not warranty_tasks:
+        frappe.throw(_("Warranty tasks are not set up"))
+        return
 
-	for task_template in warranty_tasks:
-		print(task_template)
-		template = frappe.get_doc("Task", task_template)
-		# Crear una nueva tarea basada en la plantilla
-		new_task = frappe.get_doc({
-			"doctype": "Task",
-			"subject": template.subject,
-			"project": project_name,
-			"is_template": 0
-		})
-		new_task.insert()
-		frappe.db.commit()
-		
-		print(f"Tarea '{task_template}' creada en el proyecto '{project_name}'.")
-		frappe.msgprint(_("All warranty tasks have been created"))
+    for task_template in warranty_tasks:
+        warranty_task = frappe.get_doc("Warranty Task", task_template.name)
+        template = frappe.get_doc("Task", warranty_task.task)
+        
+        # Crear una nueva tarea basada en la plantilla
+        new_task = frappe.get_doc({
+            "doctype": "Task",
+            "subject": template.subject,
+            "project": project_name,
+            "status": "Open",
+            "exp_start_date": template.exp_start_date,
+            "exp_end_date": template.exp_end_date,
+            "description": template.description,
+            "is_template": 0
+        })
+        new_task.insert()
+        frappe.db.commit()
+        print(f"Tarea '{template.name}' creada en el proyecto '{project_name}'.")
+    
+    frappe.msgprint(_("All warranty tasks have been created"))

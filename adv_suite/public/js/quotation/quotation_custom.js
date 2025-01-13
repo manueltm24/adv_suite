@@ -7,7 +7,8 @@ frappe.ui.form.on('Quotation', {
             if (row && row.item_code) {
                 return {
                     filters: [
-                        ["BOM", "item", "=", row.item_code]
+                        ["BOM", "item", "=", row.item_code],
+                        ["BOM", "project", "=", frm.doc.custom_project]
                     ]
                 };
             }
@@ -128,7 +129,8 @@ function apply_bom_filter(frm, cdt, cdn) {
             let current_row = locals[cdt][cdn];
             return {
                 filters: [
-                    ["BOM", "item", "=", current_row.item_code]
+                    ["BOM", "item", "=", current_row.item_code],
+                    ["BOM", "project", "=", frm.doc.custom_project]
                 ]
             };
         };
